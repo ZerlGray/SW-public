@@ -97,6 +97,8 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         owner.GrimoirePrototype = prototype;
         SaveStoreState(owner, store);
         _storeSystem.BindMind(grimoireUid, ownerUid, store);
+        if (HasComp<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicComponent>(ownerUid))
+            EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().Refresh(ownerUid);
         return true;
     }
 
@@ -121,11 +123,15 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         owner.GrimoireUid = grimoireUid;
         RestoreStoreState(grimoireUid, owner, store);
         _storeSystem.BindMind(grimoireUid, ownerUid, store);
+        if (HasComp<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicComponent>(ownerUid))
+            EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().Refresh(ownerUid);
         return true;
     }
 
     public bool TryAddCurrency(EntityUid ownerUid, Dictionary<EntProtoId, FixedPoint2> currency)
     {
+        if (EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().TryAddPersonalEssence(ownerUid, currency))
+            return true;
         if (!TryComp<GrimoireOwnerComponent>(ownerUid, out var owner))
             return false;
 
@@ -148,6 +154,8 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
 
     public bool TryAddBonus(EntityUid ownerUid, Dictionary<EntProtoId, FixedPoint2> currency)
     {
+        if (EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().TryAddPersonalEssence(ownerUid, currency, bonus: true))
+            return true;
         if (!TryComp<GrimoireOwnerComponent>(ownerUid, out var owner))
             return false;
 
