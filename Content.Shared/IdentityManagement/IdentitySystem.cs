@@ -5,6 +5,7 @@ using Content.Shared.CriminalRecords.Systems;
 using Content.Shared.Database;
 using Content.Shared.Hands;
 using Content.Shared.Humanoid;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Content.Shared.IdentityManagement.Components;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
@@ -188,6 +189,7 @@ public sealed class IdentitySystem : EntitySystem
     /// </returns>
     private string GetIdentityName(EntityUid target, IdentityRepresentation representation)
     {
+        if (TryComp<ZaygoDisguiseComponent>(target, out var guise)) return guise.DisplayName;
         var ev = new SeeIdentityAttemptEvent();
 
         RaiseLocalEvent(target, ev);

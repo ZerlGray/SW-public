@@ -542,6 +542,9 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return;
 
+        if (TryComp<Content.Shared.Imperial.Medieval.Rituals.MagnusPhasedComponent>(uid, out var phased) && phased.Active)
+            collidable = false;
+
         if (Resolve(uid, ref physics, false))
             PhysicsSystem.SetCanCollide(uid, collidable, body: physics);
 

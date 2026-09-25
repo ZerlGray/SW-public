@@ -33,7 +33,7 @@ public abstract class SharedDiceSystem : EntitySystem
 
     private void OnLand(Entity<DiceComponent> entity, ref LandEvent args)
     {
-        Roll(entity);
+        Roll(entity, args.User);
     }
 
     private void OnExamined(Entity<DiceComponent> entity, ref ExaminedEvent args)
@@ -75,6 +75,12 @@ public abstract class SharedDiceSystem : EntitySystem
         var rand = new System.Random((int)_timing.CurTick.Value);
 
         var roll = rand.Next(1, entity.Comp.Sides + 1);
+        if (TryComp<Content.Shared.Imperial.Medieval.BookAbilities.BookLoadedDiceComponent>(entity, out var loaded) &&
+            (user == null || user == loaded.User) && loaded.Side >= 1 && loaded.Side <= entity.Comp.Sides)
+        {
+            roll = loaded.Side;
+            RemComp<Content.Shared.Imperial.Medieval.BookAbilities.BookLoadedDiceComponent>(entity);
+        }
         SetCurrentSide(entity, roll);
 
         var popupString = Loc.GetString("dice-component-on-roll-land",

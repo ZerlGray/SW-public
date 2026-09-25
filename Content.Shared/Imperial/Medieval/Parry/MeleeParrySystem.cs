@@ -326,6 +326,9 @@ namespace Content.Shared.MeleeParry
 
             Spawn(parry.ParryEffectSuccess, Transform(uid).Coordinates);
 
+            var learnedParry = new Content.Shared.Imperial.Medieval.BookAbilities.BookSuccessfulParryEvent(attacker);
+            RaiseLocalEvent(uid, ref learnedParry);
+
             return true;
         }
 

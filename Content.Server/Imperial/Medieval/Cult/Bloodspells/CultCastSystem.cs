@@ -14,6 +14,7 @@ using Content.Shared.Alert;
 using Content.Shared.Damage;
 using Content.Shared.Imperial.Medieval.Cult;
 using Content.Shared.Interaction.Events;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Content.Shared.Weapons.Melee.Events;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
@@ -32,6 +33,7 @@ public sealed class CultCastSystem : EntitySystem
     [Dependency] private readonly AlertsSystem _alert = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly SharedStackSystem _stack = default!;
+    [Dependency] private readonly SharedRitualMagicSystem _ritualMagic = default!;
 
     private const int MaxStoredMessages = 3;
     private const float MinTimeBetweenWords = 0.7f;
@@ -63,6 +65,7 @@ public sealed class CultCastSystem : EntitySystem
             return;
 
         var attacker = args.Origin.Value;
+        if (_ritualMagic.BlocksCast(uid, Transform(attacker).Coordinates)) return;
 
         if (HasComp<CultMemberComponent>(attacker))
             return;
@@ -153,6 +156,11 @@ public sealed class CultCastSystem : EntitySystem
 
     private void OnSpoke(EntityUid uid, CultMemberComponent component, EntitySpokeEvent args)
     {
+        if (_ritualMagic.IsSuppressed(uid))
+        {
+            component.LastSpokenMessages.Clear();
+            return;
+        }
         if (component.LastSpokenMessages.Count >= MaxStoredMessages)
             component.LastSpokenMessages.Dequeue();
 
@@ -183,6 +191,7 @@ public sealed class CultCastSystem : EntitySystem
 
     private void ExecuteSpell(EntityUid caster, CultMemberComponent component, BloodSpellPrototype spell)
     {
+        if (_ritualMagic.IsSuppressed(caster)) return;
         switch (spell.SpellType)
         {
             case BloodSpellType.ItemUpgrade:

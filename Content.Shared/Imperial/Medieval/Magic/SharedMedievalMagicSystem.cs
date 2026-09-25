@@ -6,6 +6,7 @@ using Content.Shared.Imperial.MouseInput.Events;
 using Content.Shared.Mind;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Popups;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Robust.Shared.Map;
 
 namespace Content.Shared.Imperial.Medieval.Magic;
@@ -19,6 +20,7 @@ public abstract partial class SharedMedievalMagicSystem : EntitySystem
     [Dependency] private readonly SharedMindSystem _mindSystem = default!;
     [Dependency] private readonly SharedHandsSystem _handsSystem = default!;
     [Dependency] private readonly SharedPopupSystem _popupSystem = default!;
+    [Dependency] protected readonly SharedRitualMagicSystem RitualMagic = default!;
 
     public override void Initialize()
     {
@@ -63,7 +65,7 @@ public abstract partial class SharedMedievalMagicSystem : EntitySystem
 
         _speedModifierSystem.RefreshMovementSpeedModifiers(uid);
 
-        if (args.Cancelled)
+        if (args.Cancelled || RitualMagic.IsSuppressed(uid))
         {
             RaiseSpellCastFailed(GetEntity(spellData.Action), uid);
             return;
@@ -105,6 +107,12 @@ public abstract partial class SharedMedievalMagicSystem : EntitySystem
         EntityCoordinates target,
         bool isContinuation = false)
     {
+        if (RitualMagic.BlocksCast(performer, target))
+        {
+            if (isContinuation) RaiseSpellCastFailed(spell, performer);
+            _popupSystem.PopupClient(Loc.GetString("medieval-ritual-magic-suppressed"), performer);
+            return false;
+        }
         var ev = new MedievalBeforeCastSpellEvent(performer, target)
         {
             IsContinuation = isContinuation

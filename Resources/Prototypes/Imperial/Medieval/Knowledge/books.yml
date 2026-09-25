@@ -1,0 +1,88 @@
+- type: entity
+  id: MedievalKnowledgeBook
+  parent: BookBase
+  name: редкий учебный оригинал
+  description: Редкая книга с единственной возможностью обучения. Оригиналы высоко ценятся торговцами.
+  components:
+  - type: LearnableBook
+    knowledge: BookDecipherer
+    language: Common
+    studySeconds: 180
+    translationSeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+  - type: Paper
+    content: knowledge-decipherer-description
+
+- type: medievalKnowledge
+  id: BookDecipherer
+  name: knowledge-decipherer-name
+  description: knowledge-decipherer-description
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookLanguageCommon
+  name: knowledge-language-common-name
+  description: knowledge-language-description
+  language: Common
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageElf
+  name: knowledge-language-elf-name
+  description: knowledge-language-description
+  language: Elf
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageOrc
+  name: knowledge-language-orc-name
+  description: knowledge-language-description
+  language: Orc
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageGoblin
+  name: knowledge-language-goblin-name
+  description: knowledge-language-description
+  language: Goblin
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageTribe
+  name: knowledge-language-tribe-name
+  description: knowledge-language-description
+  language: Tribe
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageAncient
+  name: knowledge-language-ancient-name
+  description: knowledge-language-description
+  language: Ancient
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookLanguageCursed
+  name: knowledge-language-cursed-name
+  description: knowledge-language-description
+  language: Cursed
+  tier: 3
+
+- type: medievalKnowledge
+  id: BookLanguageGrowling
+  name: knowledge-language-growling-name
+  description: knowledge-language-description
+  language: Growling
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLanguageHissing
+  name: knowledge-language-hissing-name
+  description: knowledge-language-description
+  language: Hissing
+  tier: 1

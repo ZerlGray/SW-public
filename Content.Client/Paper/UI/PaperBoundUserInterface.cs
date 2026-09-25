@@ -69,7 +69,9 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
             canRead = false;
         // Imperial Medieval Skills end
 
-        _window?.Populate((PaperBoundUserInterfaceState) state, canRead);   // Imperial Medieval - canRead added
+        var paperState = (PaperBoundUserInterfaceState) state;
+        _window?.Populate(paperState, canRead);   // Imperial Medieval - canRead added
+        _window?.SetKnowledgeControls(new KnowledgePaperControls(EntMan, Owner, player, paperState.Mode, SendMessage));
     }
 
     private void InputOnTextEntered(string text)

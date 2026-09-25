@@ -1,0 +1,977 @@
+# Learned ritual catalog. Optional offerings are explicitly dedicated by players.
+
+- type: medievalRitual
+  id: Soma2
+  name: medieval-ritual-soma2-name
+  description: medieval-ritual-soma2-desc
+  knowledge: RitualSoma2
+  effect: Soma2
+  tier: 2
+  duration: 20
+  participants: 1
+  radius: 3
+  offerings:
+    Candle: 1
+    Gauze: 2
+    MedievalBrutepack: 1
+
+- type: medievalKnowledge
+  id: RitualSoma2
+  name: medieval-ritual-soma2-book
+  description: medieval-ritual-soma2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualSoma2
+  parent: MedievalKnowledgeBook
+  name: Пока теплится жизнь
+  description: "Один заряд: касанием за секунду стабилизировать живого пациента на 90 секунд."
+  components:
+  - type: LearnableBook
+    knowledge: RitualSoma2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: Soma3
+  name: medieval-ritual-soma3-name
+  description: medieval-ritual-soma3-desc
+  knowledge: RitualSoma3
+  effect: Soma3
+  tier: 3
+  duration: 60
+  participants: 2
+  radius: 4
+  offerings:
+    Candle: 4
+    Gauze: 10
+    MedievalBrutepack: 5
+  reagents:
+    Water: 30
+
+- type: medievalKnowledge
+  id: RitualSoma3
+  name: medieval-ritual-soma3-book
+  description: medieval-ritual-soma3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualSoma3
+  parent: MedievalKnowledgeBook
+  name: Дом милосердия
+  description: На пять минут лечит раны и ожоги, восстанавливает кровь и стабилизирует всех в круге.
+  components:
+  - type: LearnableBook
+    knowledge: RitualSoma3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: Soma4
+  name: medieval-ritual-soma4-name
+  description: medieval-ritual-soma4-desc
+  knowledge: RitualSoma4
+  effect: Soma4
+  tier: 4
+  duration: 120
+  participants: 3
+  radius: 5
+  offerings:
+    Candle: 6
+    Gauze: 10
+    MedievalIngotGold: 1
+    ShardCrystalRed: 1
+
+- type: medievalKnowledge
+  id: RitualSoma4
+  name: medieval-ritual-soma4-book
+  description: medieval-ritual-soma4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualSoma4
+  parent: MedievalKnowledgeBook
+  name: Неприкосновенное убежище
+  description: Госпиталь на две минуты. Граница блокирует атаки в обе стороны; люди проходят.
+  components:
+  - type: LearnableBook
+    knowledge: RitualSoma4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: TerraHarvest2
+  name: medieval-ritual-terraharvest2-name
+  description: medieval-ritual-terraharvest2-desc
+  knowledge: RitualTerraHarvest2
+  effect: TerraHarvest2
+  tier: 2
+  duration: 30
+  participants: 1
+  radius: 4
+  offerings:
+    MedievalBeeHoneyPiece: 2
+    MedievalFlowerWhite: 2
+  reagents:
+    Water: 20
+
+- type: medievalKnowledge
+  id: RitualTerraHarvest2
+  name: medieval-ritual-terraharvest2-book
+  description: medieval-ritual-terraharvest2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraHarvest2
+  parent: MedievalKnowledgeBook
+  name: Первая жатва
+  description: Немедленно созревают до четырёх живых посадок.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraHarvest2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: TerraHarvest3
+  name: medieval-ritual-terraharvest3-name
+  description: medieval-ritual-terraharvest3-desc
+  knowledge: RitualTerraHarvest3
+  effect: TerraHarvest3
+  tier: 3
+  duration: 60
+  participants: 2
+  radius: 5
+  offerings:
+    MedievalFlowerWhite: 3
+    MedievalFlowerStar: 2
+    MagicMedievalEarth: 5
+  reagents:
+    Water: 40
+
+- type: medievalKnowledge
+  id: RitualTerraHarvest3
+  name: medieval-ritual-terraharvest3-book
+  description: medieval-ritual-terraharvest3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraHarvest3
+  parent: MedievalKnowledgeBook
+  name: Корни помнят
+  description: Восстановить до двенадцати сохранившихся посадок и вырастить урожай.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraHarvest3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: TerraHarvest4
+  name: medieval-ritual-terraharvest4-name
+  description: medieval-ritual-terraharvest4-desc
+  knowledge: RitualTerraHarvest4
+  effect: TerraHarvest4
+  tier: 4
+  duration: 120
+  participants: 4
+  radius: 6
+  offerings:
+    MedievalBeeHoneyPiece: 5
+    MedievalFlowerWhite: 4
+    MedievalFlowerStar: 4
+    MagicMedievalEarth: 20
+  reagents:
+    Water: 60
+
+- type: medievalKnowledge
+  id: RitualTerraHarvest4
+  name: medieval-ritual-terraharvest4-book
+  description: medieval-ritual-terraharvest4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraHarvest4
+  parent: MedievalKnowledgeBook
+  name: Лето без конца
+  description: До двадцати четырёх посадок созревают и дают ещё два сбора, включая одноразовые культуры.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraHarvest4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: TerraBeasts2
+  name: medieval-ritual-terrabeasts2-name
+  description: medieval-ritual-terrabeasts2-desc
+  knowledge: RitualTerraBeasts2
+  effect: TerraBeasts2
+  tier: 2
+  duration: 30
+  participants: 1
+  radius: 5
+  offerings:
+    MedievalBeeHoneyPiece: 2
+    MedievalFlowerWhite: 2
+    FoodMeat: 1
+
+- type: medievalKnowledge
+  id: RitualTerraBeasts2
+  name: medieval-ritual-terrabeasts2-book
+  description: medieval-ritual-terrabeasts2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraBeasts2
+  parent: MedievalKnowledgeBook
+  name: Язык тихой чащи
+  description: Дикие звери в круге прекращают нападения на три минуты. Удар разрывает перемирие.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraBeasts2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: TerraBeasts3
+  name: medieval-ritual-terrabeasts3-name
+  description: medieval-ritual-terrabeasts3-desc
+  knowledge: RitualTerraBeasts3
+  effect: TerraBeasts3
+  tier: 3
+  duration: 75
+  participants: 3
+  radius: 4
+  offerings:
+    FoodMeat: 1
+    MedievalBeeHoneyPiece: 3
+    MedievalFlowerStar: 3
+    ShardCrystalRed: 1
+
+- type: medievalKnowledge
+  id: RitualTerraBeasts3
+  name: medieval-ritual-terrabeasts3-book
+  description: medieval-ritual-terrabeasts3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraBeasts3
+  parent: MedievalKnowledgeBook
+  name: Договор с диким сердцем
+  description: Приведённый зверь становится постоянным управляемым спутником выбранного участника.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraBeasts3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: TerraBeasts4
+  name: medieval-ritual-terrabeasts4-name
+  description: medieval-ritual-terrabeasts4-desc
+  knowledge: RitualTerraBeasts4
+  effect: TerraBeasts4
+  tier: 4
+  duration: 120
+  participants: 4
+  radius: 5
+  offerings:
+    FoodMeat: 3
+    MedievalBeeHoneyPiece: 5
+    MedievalFlowerStar: 5
+    MedievalDragonLootTrueEarthEssence: 1
+
+- type: medievalKnowledge
+  id: RitualTerraBeasts4
+  name: medieval-ritual-terrabeasts4-book
+  description: medieval-ritual-terrabeasts4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualTerraBeasts4
+  parent: MedievalKnowledgeBook
+  name: Клятва стаи
+  description: Связать до трёх настоящих монстров с выбранным участником.
+  components:
+  - type: LearnableBook
+    knowledge: RitualTerraBeasts4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: MagnusAntimagic2
+  name: medieval-ritual-magnusantimagic2-name
+  description: medieval-ritual-magnusantimagic2-desc
+  knowledge: RitualMagnusAntimagic2
+  effect: MagnusAntimagic2
+  tier: 2
+  duration: 20
+  participants: 1
+  radius: 3
+  offerings:
+    MedievalAstrolit: 1
+    MagicMedievalLight: 3
+
+- type: medievalKnowledge
+  id: RitualMagnusAntimagic2
+  name: medieval-ritual-magnusantimagic2-book
+  description: medieval-ritual-magnusantimagic2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusAntimagic2
+  parent: MedievalKnowledgeBook
+  name: Пределы колдовства
+  description: На минуту запрещает начинать и завершать заклинания в области.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusAntimagic2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: MagnusAntimagic3
+  name: medieval-ritual-magnusantimagic3-name
+  description: medieval-ritual-magnusantimagic3-desc
+  knowledge: RitualMagnusAntimagic3
+  effect: MagnusAntimagic3
+  tier: 3
+  duration: 45
+  participants: 2
+  radius: 5
+  offerings:
+    MedievalAstrolit: 2
+    MagicMedievalLight: 6
+    MagicMedievalEarth: 6
+
+- type: medievalKnowledge
+  id: RitualMagnusAntimagic3
+  name: medieval-ritual-magnusantimagic3-book
+  description: medieval-ritual-magnusantimagic3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusAntimagic3
+  parent: MedievalKnowledgeBook
+  name: Граница немой маны
+  description: На две минуты подавляет колдовство, магические снаряды и телепортацию через границу.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusAntimagic3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: MagnusAntimagic4
+  name: medieval-ritual-magnusantimagic4-name
+  description: medieval-ritual-magnusantimagic4-desc
+  knowledge: RitualMagnusAntimagic4
+  effect: MagnusAntimagic4
+  tier: 4
+  duration: 90
+  participants: 3
+  radius: 3
+  offerings:
+    MedievalAstrolit: 4
+    MagicMedievalLight: 12
+    MagicMedievalEarth: 12
+
+- type: medievalKnowledge
+  id: RitualMagnusAntimagic4
+  name: medieval-ritual-magnusantimagic4-book
+  description: medieval-ritual-magnusantimagic4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusAntimagic4
+  parent: MedievalKnowledgeBook
+  name: Хождение в пустоте
+  description: Полная антимагическая область следует за выбранным участником 75 секунд.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusAntimagic4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: MagnusCreation2
+  name: medieval-ritual-magnuscreation2-name
+  description: medieval-ritual-magnuscreation2-desc
+  knowledge: RitualMagnusCreation2
+  effect: MagnusCreation2
+  tier: 2
+  duration: 30
+  participants: 1
+  radius: 3
+  offerings:
+    MedievalAstrolit: 1
+    MagicMedievalLight: 2
+    MagicMedievalEarth: 2
+  optionalKinds: [recall, vessels, animation, phase, liquidWall, liquidLife, mist, thunder]
+
+- type: medievalKnowledge
+  id: RitualMagnusCreation2
+  name: medieval-ritual-magnuscreation2-book
+  description: medieval-ritual-magnuscreation2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusCreation2
+  parent: MedievalKnowledgeBook
+  name: Первая искра
+  description: Создать одно чудо. Выберите явление, посвятив подходящее подношение Магнусу.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusCreation2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: MagnusCreation3
+  name: medieval-ritual-magnuscreation3-name
+  description: medieval-ritual-magnuscreation3-desc
+  knowledge: RitualMagnusCreation3
+  effect: MagnusCreation3
+  tier: 3
+  duration: 60
+  participants: 2
+  radius: 5
+  offerings:
+    MedievalAstrolit: 2
+    MagicMedievalLight: 6
+    MagicMedievalEarth: 6
+  optionalKinds: [recall, vessels, animation, phase, liquidWall, liquidLife, mist, thunder]
+
+- type: medievalKnowledge
+  id: RitualMagnusCreation3
+  name: medieval-ritual-magnuscreation3-book
+  description: medieval-ritual-magnuscreation3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusCreation3
+  parent: MedievalKnowledgeBook
+  name: Место чудес
+  description: Насытить область выбранным явлением. Вид чуда определяется подношениями.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusCreation3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: MagnusCreation4
+  name: medieval-ritual-magnuscreation4-name
+  description: medieval-ritual-magnuscreation4-desc
+  knowledge: RitualMagnusCreation4
+  effect: MagnusCreation4
+  tier: 4
+  duration: 120
+  participants: 4
+  radius: 5
+  offerings:
+    MedievalAstrolit: 4
+    MagicMedievalLight: 15
+    MagicMedievalEarth: 15
+  optionalKinds: [recall, vessels, animation, phase, liquidWall, liquidLife, mist, thunder]
+
+- type: medievalKnowledge
+  id: RitualMagnusCreation4
+  name: medieval-ritual-magnuscreation4-book
+  description: medieval-ritual-magnuscreation4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualMagnusCreation4
+  parent: MedievalKnowledgeBook
+  name: О рождении источников
+  description: Создать устойчивый источник выбранных совместимых магических явлений.
+  components:
+  - type: LearnableBook
+    knowledge: RitualMagnusCreation4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: Kreza2
+  name: medieval-ritual-kreza2-name
+  description: medieval-ritual-kreza2-desc
+  knowledge: RitualKreza2
+  effect: Kreza2
+  tier: 2
+  duration: 20
+  participants: 1
+  radius: 3
+  offerings:
+    Candle: 1
+    MaterialCloth: 1
+    MedievalRevent: 10
+
+- type: medievalKnowledge
+  id: RitualKreza2
+  name: medieval-ritual-kreza2-book
+  description: medieval-ritual-kreza2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualKreza2
+  parent: MedievalKnowledgeBook
+  name: Разомкнутые звенья
+  description: Подготовить заряд снятия пут за одну секунду, включая освобождение самого связанного.
+  components:
+  - type: LearnableBook
+    knowledge: RitualKreza2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: Kreza3
+  name: medieval-ritual-kreza3-name
+  description: medieval-ritual-kreza3-desc
+  knowledge: RitualKreza3
+  effect: Kreza3
+  tier: 3
+  duration: 45
+  participants: 1
+  radius: 3
+  offerings:
+    Candle: 2
+    Paper: 1
+    MedievalRevent: 30
+
+- type: medievalKnowledge
+  id: RitualKreza3
+  name: medieval-ritual-kreza3-book
+  description: medieval-ritual-kreza3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualKreza3
+  parent: MedievalKnowledgeBook
+  name: Право вернуться
+  description: Подготовить возвращение к этому центру за три секунды с перетаскиваемым человеком.
+  components:
+  - type: LearnableBook
+    knowledge: RitualKreza3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: Kreza4
+  name: medieval-ritual-kreza4-name
+  description: medieval-ritual-kreza4-desc
+  knowledge: RitualKreza4
+  effect: Kreza4
+  tier: 4
+  duration: 90
+  participants: 3
+  radius: 4
+  offerings:
+    Candle: 4
+    MedievalRevent: 100
+    ShardCrystalRed: 1
+
+- type: medievalKnowledge
+  id: RitualKreza4
+  name: medieval-ritual-kreza4-book
+  description: medieval-ritual-kreza4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualKreza4
+  parent: MedievalKnowledgeBook
+  name: Открытая дорога
+  description: Связать два собственных центра постоянными вратами. Создатель закрывает их вручную.
+  components:
+  - type: LearnableBook
+    knowledge: RitualKreza4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: Valtor2
+  name: medieval-ritual-valtor2-name
+  description: medieval-ritual-valtor2-desc
+  knowledge: RitualValtor2
+  effect: Valtor2
+  tier: 2
+  duration: 20
+  participants: 1
+  radius: 3
+  offerings:
+    Candle: 1
+    MaterialCloth: 1
+    MedievalRevent: 10
+
+- type: medievalKnowledge
+  id: RitualValtor2
+  name: medieval-ritual-valtor2-book
+  description: medieval-ritual-valtor2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualValtor2
+  parent: MedievalKnowledgeBook
+  name: Железное дыхание
+  description: Подготовить 45 секунд действий без последствий истощения. Накопленная усталость сохраняется.
+  components:
+  - type: LearnableBook
+    knowledge: RitualValtor2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: Valtor3
+  name: medieval-ritual-valtor3-name
+  description: medieval-ritual-valtor3-desc
+  knowledge: RitualValtor3
+  effect: Valtor3
+  tier: 3
+  duration: 60
+  participants: 2
+  radius: 4
+  offerings:
+    Candle: 3
+    MedievalShortSword: 1
+    MedievalRevent: 30
+
+- type: medievalKnowledge
+  id: RitualValtor3
+  name: medieval-ritual-valtor3-book
+  description: medieval-ritual-valtor3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualValtor3
+  parent: MedievalKnowledgeBook
+  name: Ни шагу назад
+  description: Подготовить минуту действий при критических ранах. Смертельный урон по-прежнему убивает.
+  components:
+  - type: LearnableBook
+    knowledge: RitualValtor3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: Valtor4
+  name: medieval-ritual-valtor4-name
+  description: medieval-ritual-valtor4-desc
+  knowledge: RitualValtor4
+  effect: Valtor4
+  tier: 4
+  duration: 120
+  participants: 4
+  radius: 4
+  offerings:
+    Candle: 6
+    ShardCrystalRed: 1
+
+- type: medievalKnowledge
+  id: RitualValtor4
+  name: medieval-ritual-valtor4-book
+  description: medieval-ritual-valtor4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualValtor4
+  parent: MedievalKnowledgeBook
+  name: Последняя клятва
+  description: Живая человеческая жертва в центре дарует четырём участникам по 30 секунд отсрочки смерти.
+  components:
+  - type: LearnableBook
+    knowledge: RitualValtor4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+
+- type: medievalRitual
+  id: ZaygoTheft2
+  name: medieval-ritual-zaygotheft2-name
+  description: medieval-ritual-zaygotheft2-desc
+  knowledge: RitualZaygoTheft2
+  effect: ZaygoTheft2
+  tier: 2
+  duration: 20
+  participants: 1
+  radius: 3
+  offerings:
+    Candle: 1
+    Paper: 1
+    MedievalRevent: 15
+
+- type: medievalKnowledge
+  id: RitualZaygoTheft2
+  name: medieval-ritual-zaygotheft2-book
+  description: medieval-ritual-zaygotheft2-desc
+  tier: 2
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualZaygoTheft2
+  parent: MedievalKnowledgeBook
+  name: Закрытый карман
+  description: Подготовить незаметную кражу конкретной небольшой вещи из закрытой сумки.
+  components:
+  - type: LearnableBook
+    knowledge: RitualZaygoTheft2
+    language: Common
+    encrypted: false
+    studySeconds: 120
+  - type: Currency
+    price:
+      Revent: 400
+  - type: MedievalCurrency
+    price:
+      Revent: 400
+
+- type: medievalRitual
+  id: ZaygoIdentity3
+  name: medieval-ritual-zaygoidentity3-name
+  description: medieval-ritual-zaygoidentity3-desc
+  knowledge: RitualZaygoIdentity3
+  effect: ZaygoIdentity3
+  tier: 3
+  duration: 60
+  participants: 2
+  radius: 4
+  offerings:
+    Candle: 3
+    MaterialCloth: 2
+    Paper: 2
+    MedievalRevent: 40
+  optionalKinds: [mask]
+
+- type: medievalKnowledge
+  id: RitualZaygoIdentity3
+  name: medieval-ritual-zaygoidentity3-book
+  description: medieval-ritual-zaygoidentity3-desc
+  tier: 3
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualZaygoIdentity3
+  parent: MedievalKnowledgeBook
+  name: Чужая жизнь
+  description: Восковой слепок переносит внешность, голос, вид одежды и документов, сохраняя их настоящую функциональность.
+  components:
+  - type: LearnableBook
+    knowledge: RitualZaygoIdentity3
+    language: Common
+    encrypted: false
+    studySeconds: 180
+  - type: Currency
+    price:
+      Revent: 800
+  - type: MedievalCurrency
+    price:
+      Revent: 800
+
+- type: medievalRitual
+  id: ZaygoPlace4
+  name: medieval-ritual-zaygoplace4-name
+  description: medieval-ritual-zaygoplace4-desc
+  knowledge: RitualZaygoPlace4
+  effect: ZaygoPlace4
+  tier: 4
+  duration: 120
+  participants: 4
+  radius: 3
+  offerings:
+    Candle: 6
+    MedievalRevent: 100
+    ShardCrystalRed: 1
+  optionalKinds: [goods, furniture, structures, people, beasts]
+
+- type: medievalKnowledge
+  id: RitualZaygoPlace4
+  name: medieval-ritual-zaygoplace4-book
+  description: medieval-ritual-zaygoplace4-desc
+  tier: 4
+  actions: [ActionMedievalDrawRitual]
+
+- type: entity
+  id: MedievalBookRitualZaygoPlace4
+  parent: MedievalKnowledgeBook
+  name: То, чего здесь не было
+  description: Зона следует за воровским грошом. Подношения выбирают добычу; помехи уходят в исходную зону.
+  components:
+  - type: LearnableBook
+    knowledge: RitualZaygoPlace4
+    language: Ancient
+    encrypted: true
+    studySeconds: 240
+  - type: Currency
+    price:
+      Revent: 1400
+  - type: MedievalCurrency
+    price:
+      Revent: 1400
+

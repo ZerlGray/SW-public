@@ -1,0 +1,57 @@
+- type: entity
+  id: MedievalRitualLiquidWall
+  name: живая стена воды
+  description: Жидкость держится в воздухе силой рождённой магии.
+  components:
+  - type: Sprite
+    sprite: Structures/Walls/ice.rsi
+    state: full
+    color: "#78d9f5aa"
+    drawdepth: Walls
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      wall:
+        shape: !type:PhysShapeAabb
+          bounds: "-0.45,-0.45,0.45,0.45"
+        hard: true
+        mask: [FullTileMask]
+        layer: [WallLayer]
+  - type: Damageable
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 100
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [Destruction]
+  - type: RitualLivingLiquid
+
+- type: entity
+  id: MedievalRitualLivingDrop
+  name: живая капля
+  description: Настоящая порция жидкости, следующая к выбранному получателю.
+  components:
+  - type: Sprite
+    sprite: Effects/chemsmoke.rsi
+    state: chemsmoke
+    scale: "0.25, 0.25"
+    color: "#80e6ffff"
+    drawdepth: Effects
+  - type: RitualLivingLiquid
+
+- type: entity
+  id: MedievalRitualFollowingMist
+  name: послушный туман
+  description: Облако сохраняет свойства вложенной смеси и следует за своей целью.
+  components:
+  - type: Sprite
+    sprite: Effects/chemsmoke.rsi
+    state: chemsmoke
+    scale: "2, 2"
+    color: "#a4cdddaa"
+    drawdepth: Effects
+  - type: Occluder
+  - type: RitualLivingLiquid

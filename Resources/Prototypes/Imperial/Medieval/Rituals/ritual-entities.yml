@@ -1,0 +1,152 @@
+# Ritual drawings are the altar; there is no furniture prerequisite.
+- type: entity
+  id: MedievalRitualCenter
+  name: ритуальный круг
+  description: Разложите подношения рядом. Ведущий выбирает обряд, помощники присоединяются через меню.
+  components:
+  - type: Transform
+    anchored: true
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Sprite
+    sprite: Imperial/Medieval/Magic/lightning_rune.rsi
+    state: rune
+    color: "#dbc383"
+    drawdepth: FloorObjects
+  - type: MedievalRitualCenter
+
+- type: entity
+  id: MedievalKrezaGate
+  name: врата Крезы
+  description: Постоянная дорога между двумя ритуальными центрами. Создатель может закрыть врата с любой стороны.
+  components:
+  - type: Transform
+    anchored: true
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Sprite
+    sprite: Effects/portal.rsi
+    state: portal-blue
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      ritualGate:
+        shape: !type:PhysShapeCircle
+          radius: 0.45
+        hard: false
+        mask: [FullTileMask]
+        layer: [WallLayer]
+  - type: PointLight
+    color: "#66bbee"
+    radius: 2
+    energy: 1
+  - type: MedievalKrezaGate
+
+- type: entity
+  id: ActionMedievalDrawRitual
+  name: Нарисовать ритуальный круг
+  description: Нарисуйте центр, положите дары и выберите известный обряд в меню круга.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    useDelay: 2
+    raiseOnUser: true
+  - type: TargetAction
+    range: 2
+  - type: WorldTargetAction
+    event: !type:MedievalDrawRitualActionEvent
+  - type: ShowSpawnedEntity
+    sprites:
+    - drawedSprite: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: rune }
+      alwaysRender: true
+      inRangeColor: "#dbc383"
+      range: 2
+    rotationPerClick: 0
+
+- type: entity
+  id: ActionMedievalSomaAid
+  name: Последняя помощь
+  description: Стабилизировать живого человека на 90 секунд за одно касание.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: TargetAction
+    range: 1.5
+    checkCanAccess: true
+  - type: EntityTargetAction
+    canTargetSelf: true
+    event: !type:MedievalUseBlessingActionEvent
+      kind: Soma
+
+- type: entity
+  id: ActionMedievalKrezaFree
+  name: Разомкнуть путы
+  description: За секунду освободить себя или человека рядом.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: TargetAction
+    range: 1.5
+    checkCanAccess: false
+  - type: EntityTargetAction
+    canTargetSelf: true
+    event: !type:MedievalUseBlessingActionEvent
+      kind: KrezaFree
+
+- type: entity
+  id: ActionMedievalKrezaReturn
+  name: Вернуться к кругу
+  description: Вернуться к своему центру с перетаскиваемым человеком за три секунды.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: InstantAction
+    event: !type:MedievalActivateBlessingActionEvent
+      kind: KrezaReturn
+
+- type: entity
+  id: ActionMedievalValtorEndurance
+  name: Превозмочь усталость
+  description: 45 секунд действий без последствий истощения.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: InstantAction
+    event: !type:MedievalActivateBlessingActionEvent
+      kind: ValtorEndurance
+
+- type: entity
+  id: ActionMedievalValtorConscious
+  name: Удержать сознание
+  description: Минуту продолжать действовать при критических ранах.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: InstantAction
+    event: !type:MedievalActivateBlessingActionEvent
+      kind: ValtorConscious
+
+- type: entity
+  id: ActionMedievalValtorDeath
+  name: Последняя клятва
+  description: На 30 секунд отсрочить смерть от повреждений и последствия истощения.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    checkCanInteract: false
+    useDelay: 1
+  - type: InstantAction
+    event: !type:MedievalActivateBlessingActionEvent
+      kind: ValtorDeath
+

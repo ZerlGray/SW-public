@@ -17,6 +17,7 @@ public sealed partial class MedievalMagicSystem
     {
         var action = GetEntity(args.Action);
         var performer = GetEntity(args.Performer);
+        if (RitualMagic.IsSuppressed(performer)) { RaiseSpellCastFailed(action, performer); return; }
         var coords = Transform(performer).Coordinates;
 
         var ev = new MedievalBeforeSpawnEntityBySpellEvent()
@@ -50,6 +51,7 @@ public sealed partial class MedievalMagicSystem
     {
         var action = GetEntity(args.Action);
         var performer = GetEntity(args.Performer);
+        if (RitualMagic.IsSuppressed(performer)) { RaiseSpellCastFailed(action, performer); return; }
         var coords = Transform(performer).Coordinates;
 
         var ev = new MedievalBeforeSpawnEntityBySpellEvent()

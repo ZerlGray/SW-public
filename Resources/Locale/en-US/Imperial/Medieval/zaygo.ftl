@@ -1,0 +1,10 @@
+medieval-zaygo-need-likeness = A captured wax likeness and a living participant selected as recipient are required.
+medieval-zaygo-need-paper = Place a separate blank sheet nearby for every copied document. The recipe's consumed paper does not count.
+medieval-zaygo-need-marker = Select your thief's coin as the target. The source area follows it wherever it moves.
+medieval-zaygo-need-categories = Dedicate offerings to the desired theft categories and place them near the circle.
+medieval-zaygo-empty-area = There are no eligible spoils, or protected objects block every possible transfer.
+medieval-zaygo-make-marker = Prepare a thief's coin
+medieval-zaygo-make-mask = Prepare a likeness of Zaygo
+medieval-zaygo-captured-mask = wax impression: { $name }
+medieval-zaygo-captured = The likeness has been captured.
+medieval-zaygo-remove-disguise = Remove the stolen identity

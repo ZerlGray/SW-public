@@ -34,6 +34,7 @@ public sealed partial class BlockingSystem : EntitySystem
     [Dependency] private readonly ExamineSystemShared _examine = default!;
     [Dependency] private readonly IEntitySystemManager _systems = default!; // Imperial Medieval CombatStance
     [Dependency] private readonly TurfSystem _turf = default!;
+    [Dependency] private readonly Robust.Shared.Timing.IGameTiming _bookTiming = default!;
 
     public override void Initialize()
     {
@@ -145,6 +146,13 @@ public sealed partial class BlockingSystem : EntitySystem
         if (component.IsBlocking)
             return false;
 
+        if (TryComp<Content.Shared.Imperial.Medieval.BookAbilities.BookBrokenGuardComponent>(item, out var broken) &&
+            broken.Until > _bookTiming.CurTime)
+            return false;
+
+        var mobile = TryComp<Content.Shared.Imperial.Medieval.Knowledge.LearnedKnowledgeComponent>(user, out var knowledge) &&
+            knowledge.Knowledge.Contains("BookMobileBlock");
+
         var xform = Transform(user);
 
         var shieldName = Name(item);
@@ -169,7 +177,7 @@ public sealed partial class BlockingSystem : EntitySystem
 
         //Don't allow someone to block if someone else is on the same tile
         var playerTileRef = _turf.GetTileRef(xform.Coordinates);
-        if (playerTileRef != null)
+        if (playerTileRef != null && !mobile)
         {
             var intersecting = _lookup.GetLocalEntitiesIntersecting(playerTileRef.Value); // 0f); Imperial Medieval Blocking Fix Edit
             var mobQuery = GetEntityQuery<MobStateComponent>();
@@ -184,8 +192,9 @@ public sealed partial class BlockingSystem : EntitySystem
         }
 
         //Don't allow someone to block if they're somehow not anchored.
-        _transformSystem.AnchorEntity(user, xform);
-        if (!xform.Anchored)
+        if (!mobile)
+            _transformSystem.AnchorEntity(user, xform);
+        if (!mobile && !xform.Anchored)
         {
             CantBlockError(user);
             return false;

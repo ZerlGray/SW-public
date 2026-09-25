@@ -2,6 +2,7 @@ using Content.Shared.Examine;
 using Content.Shared.IdentityManagement;
 using Content.Shared.IdentityManagement.Components;
 using Content.Shared.Verbs;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
 
@@ -46,12 +47,17 @@ public abstract class SharedMedievalIdentitySystem : EntitySystem
             return false;
         }
 
-        return introducerComp.HideUnknown && !observerComp.KnownIds.Contains(introducerComp.Identifier);
+        var hidden = TryComp<ZaygoDisguiseComponent>(introducer, out var guise)
+            ? guise.HideUnknown : introducerComp.HideUnknown;
+        return hidden && !observerComp.KnownIds.Contains(GetPresentedIdentifier(introducer, introducerComp));
     }
+
+    public int GetPresentedIdentifier(EntityUid uid, IdentityRequiresKnowledgeComponent component) =>
+        TryComp<ZaygoDisguiseComponent>(uid, out var guise) ? guise.Identifier : component.Identifier;
 
     private void OnExamined(EntityUid uid, IdentityRequiresKnowledgeComponent component, ExaminedEvent args)
     {
-        args.PushMarkup(Loc.GetString("imperial-hm-identity-id", ("name", component.Identifier)), -1);
+        args.PushMarkup(Loc.GetString("imperial-hm-identity-id", ("name", GetPresentedIdentifier(uid, component))), -1);
     }
     public bool IsIdentityMasked(EntityUid entity)
     {

@@ -1,0 +1,24 @@
+- type: entity
+  id: MedievalRitualAnimatedArmour
+  parent: [BaseMobSkeletonPerson, MobCombat]
+  name: оживлённый доспех
+  description: Пустой доспех движется силой Магнуса.
+  categories: [HideSpawnMenu]
+  components:
+  - type: HTN
+    rootTask:
+      task: RatServantCompound
+  - type: NpcFactionMember
+    factions: [Passive]
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.5
+    baseSprintSpeed: 3.5
+  - type: CombatMode
+  - type: ShieldOnStartup
+    enabled: false
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      120: Dead
+  - type: Destructible
+    thresholds: []

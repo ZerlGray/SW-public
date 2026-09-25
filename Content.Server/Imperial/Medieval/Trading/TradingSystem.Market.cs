@@ -708,6 +708,7 @@ public sealed partial class TradingSystem
                           HasComp<MedievalArmorIntegrityComponent>(item);
         var isDamagedEquipment = !forceIntactEquipment && IsDamagedEquipment(item);
         var matchesCommon = !isRecipe &&
+                            !HasComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(item) &&
                             !isCanvas &&
                             !hasStoredSolution &&
                             !hasCurrencyValue &&
@@ -806,6 +807,15 @@ public sealed partial class TradingSystem
         var metadata = MetaData(item);
         values.Add(metadata.EntityName);
         values.Add(metadata.EntityDescription);
+
+        if (TryComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(item, out var book))
+        {
+            values.Add(book.Knowledge);
+            values.Add(book.Language);
+            values.Add(book.Original.ToString());
+            values.Add(book.Encrypted.ToString());
+            values.Add(book.Spent.ToString());
+        }
 
         return string.Join('\u001f', values);
     }

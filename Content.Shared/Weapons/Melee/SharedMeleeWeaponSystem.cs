@@ -579,6 +579,8 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         };
 
         var before = new BeforeMeleeHitEvent(targets, user);
+        if (EntityManager.System<Content.Shared.Imperial.Medieval.Rituals.SharedRitualMagicSystem>()
+            .BlocksHostility(TransformSystem.GetMapCoordinates(user), TransformSystem.GetMapCoordinates(target.Value))) return;
         RaiseLocalEvent(meleeUid, ref before);
         if (before.Cancelled) return;
         targets = before.HitEntities;
@@ -677,6 +679,8 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         var entities = GetEntityList(ev.Entities);
 
         var before = new BeforeMeleeHitEvent(entities, user);
+        var ritualMagic = EntityManager.System<Content.Shared.Imperial.Medieval.Rituals.SharedRitualMagicSystem>();
+        entities.RemoveAll(victim => ritualMagic.BlocksHostility(TransformSystem.GetMapCoordinates(user), TransformSystem.GetMapCoordinates(victim)));
         RaiseLocalEvent(meleeUid, ref before);
         if (before.Cancelled) return false;
         entities = before.HitEntities;

@@ -1,0 +1,327 @@
+- type: medievalKnowledge
+  id: BookDiceCheat
+  name: book-knowledge-dice-cheat-name
+  description: book-knowledge-dice-cheat-desc
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookLipReading
+  name: book-knowledge-lip-reading-name
+  description: book-knowledge-lip-reading-desc
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookPorter
+  name: book-knowledge-porter-name
+  description: book-knowledge-porter-desc
+  tier: 1
+
+- type: medievalKnowledge
+  id: BookTrapDisarm
+  name: book-knowledge-trap-disarm-name
+  description: book-knowledge-trap-disarm-desc
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookExtractReagent
+  name: book-knowledge-extract-reagent-name
+  description: book-knowledge-extract-reagent-desc
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookPackWorkbench
+  name: book-knowledge-pack-workbench-name
+  description: book-knowledge-pack-workbench-desc
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookEscapeBonds
+  name: book-knowledge-escape-bonds-name
+  description: book-knowledge-escape-bonds-desc
+  tier: 2
+  actions: [ActionBookEscapeBonds]
+
+- type: medievalKnowledge
+  id: BookTransplant
+  name: book-knowledge-transplant-name
+  description: book-knowledge-transplant-desc
+  tier: 2
+
+- type: medievalKnowledge
+  id: BookCartography
+  name: book-knowledge-cartography-name
+  description: book-knowledge-cartography-desc
+  tier: 2
+  actions: [ActionBookSurvey]
+
+- type: medievalKnowledge
+  id: BookTaming
+  name: book-knowledge-taming-name
+  description: book-knowledge-taming-desc
+  tier: 3
+
+- type: medievalKnowledge
+  id: BookMagicTraces
+  name: book-knowledge-magic-traces-name
+  description: book-knowledge-magic-traces-desc
+  tier: 3
+  actions: [ActionBookReadTraces]
+
+- type: medievalKnowledge
+  id: BookVentriloquism
+  name: book-knowledge-ventriloquism-name
+  description: book-knowledge-ventriloquism-desc
+  tier: 3
+  actions: [ActionBookVentriloquism]
+
+- type: medievalKnowledge
+  id: BookDisarmingRiposte
+  name: book-knowledge-disarming-riposte-name
+  description: book-knowledge-disarming-riposte-desc
+  tier: 3
+
+- type: medievalKnowledge
+  id: BookBreakGuard
+  name: book-knowledge-break-guard-name
+  description: book-knowledge-break-guard-desc
+  tier: 3
+  actions: [ActionBookBreakGuard]
+
+- type: medievalKnowledge
+  id: BookParryProjectile
+  name: book-knowledge-parry-projectile-name
+  description: book-knowledge-parry-projectile-desc
+  tier: 3
+
+- type: medievalKnowledge
+  id: BookMobileBlock
+  name: book-knowledge-mobile-block-name
+  description: book-knowledge-mobile-block-desc
+  tier: 3
+
+- type: medievalKnowledge
+  id: BookPiercingShot
+  name: book-knowledge-piercing-shot-name
+  description: book-knowledge-piercing-shot-desc
+  tier: 3
+  actions: [ActionBookPiercingShot]
+
+- type: medievalKnowledge
+  id: BookEscapeGrab
+  name: book-knowledge-escape-grab-name
+  description: book-knowledge-escape-grab-desc
+  tier: 3
+  actions: [ActionBookEscapeGrab]
+
+- type: medievalKnowledge
+  id: BookSpellScribing
+  name: book-knowledge-spell-scribing-name
+  description: book-knowledge-spell-scribing-desc
+  tier: 4
+
+- type: entity
+  id: ActionBookEscapeBonds
+  name: Путы и узлы
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 2
+    checkCanInteract: false
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookEscapeBondsActionEvent
+
+- type: entity
+  id: ActionBookEscapeGrab
+  name: Из железных объятий
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 30
+    checkCanInteract: false
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookEscapeGrabActionEvent
+
+- type: entity
+  id: ActionBookBreakGuard
+  name: Разомкнуть защиту
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 20
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookBreakGuardActionEvent
+
+- type: entity
+  id: ActionBookPiercingShot
+  name: Пробивной выстрел
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 20
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookPiercingShotActionEvent
+
+- type: entity
+  id: ActionBookSurvey
+  name: Зарисовать местность
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 10
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookSurveyActionEvent
+
+- type: entity
+  id: ActionBookCompanionFollow
+  name: "Спутники: следовать"
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 1
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookCompanionOrderEvent
+      order: follow
+
+- type: entity
+  id: ActionBookCompanionStay
+  name: "Спутники: ждать"
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 1
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookCompanionOrderEvent
+      order: stay
+
+- type: entity
+  id: ActionBookCompanionGuard
+  name: "Спутники: охранять"
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 1
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookCompanionOrderEvent
+      order: guard
+
+- type: entity
+  id: ActionBookCompanionRetreat
+  name: "Спутники: отступить"
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 1
+    checkCanInteract: true
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookCompanionOrderEvent
+      order: retreat
+
+- type: entity
+  id: ActionBookCompanionAttack
+  name: Спутники — атаковать цель
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 1
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: TargetAction
+    range: 12
+    checkCanAccess: false
+  - type: EntityTargetAction
+    event: !type:BookCompanionAttackEvent
+
+- type: entity
+  id: ActionBookReadTraces
+  name: Прочитать следы колдовства
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 3
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: InstantAction
+    event: !type:BookReadTracesActionEvent
+
+- type: entity
+  id: ActionBookVentriloquism
+  name: Перенести голос
+  description: Выберите предмет или человека в пределах видимости. Выберите себя, чтобы вернуть голос.
+  components:
+  - type: Action
+    raiseOnUser: true
+    useDelay: 2
+    icon:
+      sprite: Objects/Misc/books.rsi
+      state: icon_text
+  - type: TargetAction
+    range: 8
+    checkCanAccess: false
+  - type: EntityTargetAction
+    canTargetSelf: true
+    event: !type:BookVentriloquismActionEvent
+
+- type: entity
+  parent: BaseItem
+  id: MedievalBookPackedObject
+  name: заплечная поклажа
+  description: Упакованный груз. Разверните через контекстное меню.
+  components:
+  - type: Sprite
+    sprite: Objects/Storage/boxes.rsi
+    state: box
+  - type: Item
+    size: Huge
+  - type: Clothing
+    slots: BACK
+  - type: ContainerContainer
+    containers:
+      packed-object: !type:ContainerSlot
+  - type: BookPackedObject
+
+- type: entity
+  id: MedievalBookMagicTrace
+  name: след колдовства
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: BookMagicTrace
+  - type: TimedDespawn
+    lifetime: 600
+
+
+

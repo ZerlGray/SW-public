@@ -45,6 +45,10 @@ public sealed partial class BlockingSystem
     {
         if (TryComp<BlockingComponent>(component.BlockingItem, out var blocking))
         {
+            if (TryComp<Content.Shared.Imperial.Medieval.BookAbilities.BookBrokenGuardComponent>(component.BlockingItem, out var broken) &&
+                broken.Until > _bookTiming.CurTime)
+                return;
+
             if (args.Damage.GetTotal() <= 0)
                 return;
 

@@ -1,0 +1,58 @@
+- type: entity
+  id: MedievalMagnusField
+  name: круг немой маны
+  description: Внутри круга невозможно колдовать.
+  components:
+  - type: Transform
+    anchored: true
+  - type: Sprite
+    sprite: Imperial/Medieval/Magic/lightning_rune.rsi
+    state: rune
+    color: "#9269b5"
+    drawdepth: FloorObjects
+  - type: RitualTransportProtected
+
+- type: entity
+  id: MedievalMagnusSource
+  name: источник чудес
+  description: Порождает явления, выбранные подношениями. Магические свойства доступны всем внутри области.
+  components:
+  - type: Transform
+    anchored: true
+  - type: Clickable
+  - type: Sprite
+    sprite: Imperial/Medieval/Magic/lightning_rune.rsi
+    state: rune
+    color: "#74e4ed"
+    drawdepth: FloorObjects
+  - type: PointLight
+    color: "#74e4ed"
+    radius: 3
+    energy: 1
+  - type: RitualTransportProtected
+
+- type: entity
+  id: MedievalMagnusThunderWave
+  name: громовой удар
+  components:
+  - type: Sprite
+    sprite: Imperial/Medieval/Magic/lightning_rune.rsi
+    state: rune
+    color: "#a9f0ff"
+    scale: "3, 3"
+  - type: TimedDespawn
+    lifetime: 0.5
+
+- type: entity
+  id: ActionMagnusThunder
+  name: Громовой удар
+  description: Ударить зачарованным оружием по точке рядом и растолкнуть окружающих. Расходует один заряд.
+  components:
+  - type: Action
+    icon: { sprite: Imperial/Medieval/Magic/lightning_rune.rsi, state: icon }
+    useDelay: 3
+  - type: TargetAction
+    range: 2
+    checkCanAccess: true
+  - type: WorldTargetAction
+    event: !type:MagnusThunderActionEvent

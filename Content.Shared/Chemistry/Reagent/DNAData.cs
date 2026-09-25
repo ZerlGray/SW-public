@@ -13,12 +13,12 @@ public sealed partial class DnaData : ReagentData
 
     public override bool Equals(ReagentData? other)
     {
-        if (other == null)
+        if (other is not DnaData dna)
         {
             return false;
         }
 
-        return ((DnaData) other).DNA == DNA;
+        return dna.DNA == DNA;
     }
 
     public override int GetHashCode()

@@ -53,6 +53,15 @@ namespace Content.Client.Paper.UI
 
         public event Action<string>? OnSaved;
 
+        private KnowledgePaperControls? _knowledgeControls;
+
+        public void SetKnowledgeControls(KnowledgePaperControls controls)
+        {
+            _knowledgeControls?.Orphan();
+            _knowledgeControls = controls;
+            ContentsRoot.AddChild(controls);
+        }
+
         private int _MaxInputLength = -1;
         public int MaxInputLength
         {

@@ -3019,6 +3019,12 @@
   name: book
   description: The book is in good condition
   components:
+    - type: LearnableBook
+      knowledge: BookMagicTraces
+      language: Cursed
+      encrypted: true
+      studySeconds: 240
+      translationSeconds: 180
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:
@@ -3049,6 +3055,12 @@
   name: book
   description: The book is in good condition
   components:
+    - type: LearnableBook
+      knowledge: BookVentriloquism
+      language: Cursed
+      encrypted: true
+      studySeconds: 240
+      translationSeconds: 180
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:
@@ -3079,6 +3091,12 @@
   name: book
   description: The book is in good condition
   components:
+    - type: LearnableBook
+      knowledge: BookSpellScribing
+      language: Cursed
+      encrypted: true
+      studySeconds: 300
+      translationSeconds: 240
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:

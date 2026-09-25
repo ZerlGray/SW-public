@@ -1,0 +1,25 @@
+medieval-ritual-magic-suppressed = A ritual boundary prevents this magic.
+medieval-magnus-need-participant = The carrier of antimagic must be a participant.
+medieval-magnus-incompatible-offerings = Dedicate an offering to one phenomenon. Only a great source supports multiple compatible gifts. Choose one liquid gift; phasing and animation cannot be combined.
+medieval-magnus-need-target = Select a suitable item, vessel or ordinary barrier using its target verb.
+medieval-magnus-bind = Bind the returning item to yourself
+medieval-magnus-recall = Recall: { $item }
+medieval-offering-dedicated = Dedicated offering: [color=gold]{ $kind }[/color]. The ritual consumes one item or stack unit.
+medieval-offering-clear = Remove offering dedication
+medieval-offering-prepare = Dedicate offering: { $kind }
+medieval-offering-recall = item recall (cloth thread)
+medieval-offering-vessels = vessel link (cloth thread)
+medieval-offering-animation = animation (food)
+medieval-offering-phase = phasing (key)
+medieval-offering-liquidWall = liquid wall (stone)
+medieval-offering-liquidLife = living droplet (food)
+medieval-offering-mist = following mist (cloth)
+medieval-offering-thunder = thunder strike (hammer)
+medieval-offering-goods = steal items (coin)
+medieval-offering-furniture = steal furnishings (plank)
+medieval-offering-structures = steal walls and windows (stone)
+medieval-offering-people = steal people (blood vessel)
+medieval-offering-beasts = steal animals (food)
+medieval-offering-mask = stolen identity
+medieval-magnus-gift-examine = Magical gift: { $kind }. Charges: { $charges }. Remaining: { $seconds } s.
+medieval-magnus-source-examine = Phenomena: { $kinds }. Radius: { $radius }. Remaining: { $seconds } s. New gifts: { $gifts }.

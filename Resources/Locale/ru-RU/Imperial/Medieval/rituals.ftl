@@ -1,0 +1,26 @@
+medieval-ritual-drawn = Круг готов. Выберите цель и разложите подношения; затем выберите молитву в меню круга.
+medieval-ritual-examine = К молитве присоединились: { $count }.
+medieval-ritual-target = Получатель или цель обряда: { $target }.
+medieval-ritual-join = Присоединиться к молитве
+medieval-ritual-leave = Покинуть молитву
+medieval-ritual-erase = Стереть круг
+medieval-ritual-link = Связать с кругом { $position }
+medieval-ritual-select-target = Выбрать целью моего ритуала
+medieval-ritual-preview = Показать область: { $name }
+medieval-ritual-no-options = не выбрано
+medieval-ritual-choices = Цель: { $target }. Подготовленные варианты: { $options }.
+medieval-ritual-theft-exchange-warning = Мешающие объекты у принимающего круга, включая людей, уйдут в исходную область независимо от выбранных категорий. Защищённые объекты останутся на месте.
+medieval-ritual-recipe = { $seconds } с, участников: { $people }, радиус: { $radius }. Подношения: { $items }.
+medieval-ritual-not-enough-people = Недостаточно явно присоединившихся участников в круге.
+medieval-ritual-missing-offerings = Не хватает подношений рядом с кругом. Положите их на землю; нужные жидкости оставьте в ёмкостях.
+medieval-ritual-invalid-target = Для этого обряда выбрана неподходящая цель.
+medieval-ritual-target-participant = Выберите живого участника в круге получателем благословения.
+medieval-ritual-no-plants = В области нет подходящих сохранившихся посадок.
+medieval-ritual-no-beasts = В области нет подходящих диких зверей.
+medieval-ritual-pack-full = У получателя уже есть спутники; обряд превысит предел стаи.
+medieval-ritual-link-required = Сначала свяжите этот круг с другим своим кругом через меню.
+medieval-ritual-sacrifice-required = В центре нужна живая человеческая жертва, не участвующая в молитве. Выберите её целью.
+medieval-ritual-interrupted = Молитва прервана: участник или подношение покинули своё место. Дары сохранены.
+medieval-ritual-success = Молитва услышана.
+medieval-ritual-close-gate = Закрыть обе стороны дороги
+

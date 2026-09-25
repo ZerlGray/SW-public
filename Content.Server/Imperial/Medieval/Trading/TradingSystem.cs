@@ -195,6 +195,8 @@ public sealed partial class TradingSystem : EntitySystem
         Entity<MedievalCurrencyComponent?> currency,
         Entity<TradingComponent?> store)
     {
+        if (TryComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(currency.Owner, out var book) && !book.Original)
+            return false;
         if (HasComp<PublicTradingPitComponent>(store.Owner) ||
             !Resolve(currency.Owner, ref currency.Comp) ||
             !Resolve(store.Owner, ref store.Comp))

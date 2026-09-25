@@ -11,6 +11,7 @@ using Content.Shared.Database;
 using Content.Shared.Effects;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Imperial.Medieval.Stamina;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Content.Shared.Popups;
 using Content.Shared.FixedPoint;
 using Content.Shared.Movement.Components;
@@ -274,7 +275,7 @@ public abstract partial class SharedStaminaSystem : EntitySystem
 
         var oldStam = component.StaminaDamage;
 
-        if (oldStam + value >= component.CritThreshold || component.Critical)
+        if (!IgnoresExhaustion(uid) && (oldStam + value >= component.CritThreshold || component.Critical))
             return false;
 
         TakeStaminaDamage(uid, value, component, source, with, visual: visual, ignoreResist: ignoreResist, log: log); // Imperial Medieval Stamina Log Disable
@@ -302,7 +303,7 @@ public abstract partial class SharedStaminaSystem : EntitySystem
         value = UniversalStaminaDamageModifier * value;
 
         // Have we already reached the point of max stamina damage?
-        if (component.Critical)
+        if (component.Critical && !IgnoresExhaustion(uid))
             return;
 
         var oldDamage = component.StaminaDamage;
@@ -415,6 +416,8 @@ public abstract partial class SharedStaminaSystem : EntitySystem
 
     private void EnterStamCrit(EntityUid uid, StaminaComponent? component = null)
     {
+        if (IgnoresExhaustion(uid))
+            return;
         if (!Resolve(uid, ref component) ||
             component.Critical)
         {
@@ -467,6 +470,12 @@ public abstract partial class SharedStaminaSystem : EntitySystem
         if (!Resolve(ent, ref ent.Comp))
             return;
 
+        if (IgnoresExhaustion(ent.Owner))
+        {
+            _status.TryRemoveStatusEffect(ent.Owner, StaminaLow);
+            return;
+        }
+
         if (!_status.TrySetStatusEffectDuration(ent, StaminaLow, out var status))
             return;
 
@@ -482,6 +491,13 @@ public abstract partial class SharedStaminaSystem : EntitySystem
         }
 
         _movementMod.TryUpdateMovementStatus(ent.Owner, status.Value, ent.Comp.StunModifierThresholds[closest]);
+    }
+
+    private bool IgnoresExhaustion(EntityUid uid)
+    {
+        var ev = new MedievalExhaustionCheckEvent();
+        RaiseLocalEvent(uid, ref ev);
+        return ev.IgnoreExhaustion;
     }
 
     [Serializable, NetSerializable]

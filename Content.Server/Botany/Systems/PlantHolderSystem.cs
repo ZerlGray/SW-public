@@ -780,7 +780,9 @@ public sealed class PlantHolderSystem : EntitySystem
 
         DoScream(uid, component.Seed);
 
-        if (component.Seed?.HarvestRepeat == HarvestType.NoRepeat)
+        var ritualHarvest = new Content.Server.Imperial.Medieval.Rituals.MedievalPlantHarvestedEvent();
+        RaiseLocalEvent(uid, ref ritualHarvest);
+        if (component.Seed?.HarvestRepeat == HarvestType.NoRepeat && !ritualHarvest.PreservePlant)
             RemovePlant(uid, component);
 
         CheckLevelSanity(uid, component);

@@ -4,6 +4,7 @@ using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
 using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Inventory;
+using Content.Shared.Imperial.Medieval.Rituals;
 using Content.Shared.Preferences;
 using Robust.Client.GameObjects;
 using Robust.Shared.Configuration;
@@ -25,6 +26,8 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
         base.Initialize();
 
         SubscribeLocalEvent<HumanoidAppearanceComponent, AfterAutoHandleStateEvent>(OnHandleState);
+        SubscribeLocalEvent<ZaygoDisguiseComponent, AfterAutoHandleStateEvent>(OnDisguiseState);
+        SubscribeLocalEvent<ZaygoDisguiseComponent, ComponentShutdown>(OnDisguiseShutdown);
         Subs.CVar(_configurationManager, CCVars.AccessibilityClientCensorNudity, OnCvarChanged, true);
         Subs.CVar(_configurationManager, CCVars.AccessibilityServerCensorNudity, OnCvarChanged, true);
     }
@@ -32,6 +35,18 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
     private void OnHandleState(EntityUid uid, HumanoidAppearanceComponent component, ref AfterAutoHandleStateEvent args)
     {
         UpdateSprite((uid, component, Comp<SpriteComponent>(uid)));
+    }
+
+    private void OnDisguiseState(EntityUid uid, ZaygoDisguiseComponent component, ref AfterAutoHandleStateEvent args)
+    {
+        if (TryComp<HumanoidAppearanceComponent>(uid, out var appearance) && TryComp<SpriteComponent>(uid, out var sprite))
+            UpdateSprite((uid, appearance, sprite));
+    }
+
+    private void OnDisguiseShutdown(EntityUid uid, ZaygoDisguiseComponent component, ComponentShutdown args)
+    {
+        if (TryComp<HumanoidAppearanceComponent>(uid, out var appearance) && TryComp<SpriteComponent>(uid, out var sprite))
+            UpdateSprite((uid, appearance, sprite), false);
     }
 
     private void OnCvarChanged(bool value)
@@ -43,8 +58,10 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
         }
     }
 
-    private void UpdateSprite(Entity<HumanoidAppearanceComponent, SpriteComponent> entity)
+    private void UpdateSprite(Entity<HumanoidAppearanceComponent, SpriteComponent> entity, bool useDisguise = true)
     {
+        if (useDisguise && TryComp<ZaygoDisguiseComponent>(entity.Owner, out var guise))
+            entity = (entity.Owner, guise.Visual.ForRendering(entity.Comp1), entity.Comp2);
         UpdateLayers(entity);
         ApplyMarkingSet(entity);
 

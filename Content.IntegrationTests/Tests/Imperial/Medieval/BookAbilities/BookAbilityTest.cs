@@ -1,0 +1,208 @@
+using Content.Server.Imperial.Medieval.BookAbilities;
+using Content.Server.Imperial.Medieval.Knowledge;
+using Content.Shared.Chemistry.Components;
+using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Chemistry.Reagent;
+using Content.Shared.Damage;
+using Content.Shared.Dice;
+using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Imperial.Medieval.Additions;
+using Content.Shared.Imperial.Medieval.BookAbilities;
+using Content.Shared.Interaction.Events;
+using Content.Shared.Mind;
+using Content.Shared.Mind.Components;
+using Content.Shared.Weapons.Melee;
+using Content.Server.Imperial.Medieval.Rituals;
+using Content.Shared.Storage;
+using Content.Shared.Verbs;
+using Content.Shared.Imperial.Medieval.Language;
+using Content.Shared.Weapons.Melee.Events;
+using System.Linq;
+using Robust.Shared.Containers;
+using Robust.Shared.GameObjects;
+
+namespace Content.IntegrationTests.Tests.Imperial.Medieval.BookAbilities;
+
+[TestFixture]
+public sealed class BookAbilityTest
+{
+    [Test]
+    public async Task SilentTheftTransfersOneExistingItemAndConsumesOneCharge()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        EntityUid thief = default, bag = default, stolen = default, untouched = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            thief = entities.SpawnEntity("MobHuman", map.GridCoords);
+            bag = entities.SpawnEntity("ClothingBackpack", map.GridCoords);
+            stolen = entities.SpawnEntity("d6Dice", map.GridCoords);
+            untouched = entities.SpawnEntity("d6Dice", map.GridCoords);
+            var storage = entities.GetComponent<StorageComponent>(bag);
+            var containers = entities.System<SharedContainerSystem>();
+            Assert.That(containers.Insert(stolen, storage.Container), Is.True);
+            Assert.That(containers.Insert(untouched, storage.Container), Is.True);
+            entities.EnsureComponent<ZaygoTheftBlessingComponent>(thief).Charges = 1;
+            Assert.That(entities.System<MedievalZaygoTheftSystem>().TrySteal(thief, bag, bag, stolen), Is.True);
+        });
+        await pair.RunTicksSync(180);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var storage = entities.GetComponent<StorageComponent>(bag);
+            Assert.Multiple(() =>
+            {
+                Assert.That(entities.System<SharedHandsSystem>().IsHolding(thief, stolen, out _), Is.True);
+                Assert.That(storage.Container.Contains(stolen), Is.False);
+                Assert.That(storage.Container.Contains(untouched), Is.True);
+                Assert.That(entities.GetComponent<ZaygoTheftBlessingComponent>(thief).Charges, Is.Zero);
+                Assert.That(entities.System<MedievalZaygoTheftSystem>().TrySteal(thief, bag, bag, untouched), Is.False);
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task VentriloquismUsesPersonAsSourceWithoutBorrowingTheirLanguage()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var actor = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var target = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var knowledge = entities.System<MedievalKnowledgeSystem>();
+            knowledge.GrantKnowledge(actor, "BookVentriloquism");
+            entities.EnsureComponent<LanguageSpeakerComponent>(actor).Languages.Clear();
+            entities.EnsureComponent<LanguageSpeakerComponent>(target).Languages["Elf"] = LanguageKnowledge.Speak;
+            var project = new BookVentriloquismActionEvent { Performer = actor, Target = target };
+            entities.EventBus.RaiseLocalEvent(actor, project);
+            Assert.That(project.Handled, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(entities.System<MedievalBookAbilitySystem>().VoiceSource(actor), Is.EqualTo(target));
+                Assert.That(entities.GetComponent<LanguageSpeakerComponent>(actor).Languages.ContainsKey("Elf"), Is.False);
+                Assert.That(entities.System<MedievalBookAbilitySystem>().CanLipRead(actor, target, "Elf"), Is.False);
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task DisarmingRiposteIsConsumedByTheFirstCounterHit()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var defender = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var attacker = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var sword = entities.SpawnEntity("MedievalWoodenSword", map.GridCoords);
+            var item = entities.SpawnEntity("d6Dice", map.GridCoords);
+            var hands = entities.System<SharedHandsSystem>();
+            Assert.That(hands.TryPickupAnyHand(attacker, item), Is.True);
+            entities.System<MedievalKnowledgeSystem>().GrantKnowledge(defender, "BookDisarmingRiposte");
+            var parry = new BookSuccessfulParryEvent(attacker);
+            entities.EventBus.RaiseLocalEvent(defender, ref parry);
+            var hit = new MeleeHitEvent(new() { attacker }, defender, sword, new DamageSpecifier(), null);
+            entities.EventBus.RaiseLocalEvent(sword, hit);
+            Assert.That(hands.IsHolding(attacker, item, out _), Is.False);
+            Assert.That(hands.TryPickupAnyHand(attacker, item), Is.True);
+            entities.EventBus.RaiseLocalEvent(sword, new MeleeHitEvent(new() { attacker }, defender, sword, new DamageSpecifier(), null));
+            Assert.That(hands.IsHolding(attacker, item, out _), Is.True);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task TamingPreservesRealCreatureAndRefusesAnotherOwnerOrPlayerMind()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var owner = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var rival = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var bear = entities.SpawnEntity("MedievalMobBear", map.GridCoords);
+            var damage = entities.GetComponent<DamageableComponent>(bear);
+            var attack = entities.GetComponent<MeleeWeaponComponent>(bear).Damage.GetTotal();
+            var pets = entities.System<MedievalCompanionSystem>();
+            Assert.That(pets.Tame(bear, owner), Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(entities.GetComponent<DamageableComponent>(bear), Is.SameAs(damage));
+                Assert.That(entities.GetComponent<MeleeWeaponComponent>(bear).Damage.GetTotal(), Is.EqualTo(attack));
+                Assert.That(entities.HasComponent<MedievalTimedDespawnComponent>(bear), Is.False);
+                Assert.That(pets.Tame(bear, rival), Is.False);
+                Assert.That(pets.OwnedCount(owner), Is.EqualTo(1));
+            });
+            var second = entities.SpawnEntity("MedievalMobBear", map.GridCoords);
+            Assert.That(pets.Tame(second, owner), Is.False);
+            entities.EnsureComponent<MindContainerComponent>(second);
+            var minds = entities.System<SharedMindSystem>();
+            var mind = minds.CreateMind(null);
+            minds.TransferTo(mind, second);
+            Assert.That(pets.CanTame(second, rival), Is.False);
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task PreparedDieResultIsSpentByOneRoll()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var user = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var die = entities.SpawnEntity("d6Dice", map.GridCoords);
+            var prepared = entities.EnsureComponent<BookLoadedDiceComponent>(die);
+            prepared.User = user;
+            prepared.Side = 6;
+            entities.EventBus.RaiseLocalEvent(die, new UseInHandEvent(user));
+            Assert.Multiple(() =>
+            {
+                Assert.That(entities.GetComponent<DiceComponent>(die).CurrentValue, Is.EqualTo(6));
+                Assert.That(entities.HasComponent<BookLoadedDiceComponent>(die), Is.False);
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task SeparationPreservesOtherReagentsAndCannotDuplicateOrOverwriteReceiver()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var user = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var source = entities.SpawnEntity("Beaker", map.GridCoords);
+            var receiver = entities.SpawnEntity("Beaker", map.GridCoords);
+            var solutions = entities.System<SharedSolutionContainerSystem>();
+            Assert.That(solutions.TryGetDrainableSolution(source, out var sourceSol, out var mixture), Is.True);
+            solutions.TryAddReagent(sourceSol!.Value, "Water", 10, out _);
+            solutions.TryAddReagent(sourceSol.Value, "Sugar", 5, out _);
+            var abilities = entities.System<MedievalBookAbilitySystem>();
+            Assert.That(entities.System<SharedHandsSystem>().TryPickupAnyHand(user, receiver), Is.True);
+            Assert.That(abilities.TryExtract(user, source, receiver, new ReagentId("Water", null)), Is.False);
+            entities.System<MedievalKnowledgeSystem>().GrantKnowledge(user, "BookExtractReagent");
+            Assert.That(abilities.TryExtract(user, source, receiver, new ReagentId("Water", null)), Is.True);
+            Assert.That(solutions.TryGetRefillableSolution(receiver, out _, out var result), Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result!.GetReagentQuantity(new ReagentId("Water", null)).Int(), Is.EqualTo(10));
+                Assert.That(mixture!.GetReagentQuantity(new ReagentId("Water", null)).Int(), Is.Zero);
+                Assert.That(mixture.GetReagentQuantity(new ReagentId("Sugar", null)).Int(), Is.EqualTo(5));
+                Assert.That(abilities.TryExtract(user, source, receiver, new ReagentId("Water", null)), Is.False);
+                Assert.That(abilities.TryExtract(user, source, receiver, new ReagentId("Sugar", null)), Is.False);
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+}
