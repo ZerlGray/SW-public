@@ -24,6 +24,12 @@ public sealed class SkillJumpSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeLocalEvent<SkillProgressionComponent, PreventCollideEvent>(OnCollision);
+        SubscribeLocalEvent<SkillsComponent, CheckDashStaminaCostModifiersEvent>(OnStaminaCost);
+    }
+
+    private void OnStaminaCost(EntityUid uid, SkillsComponent skills, ref CheckDashStaminaCostModifiersEvent args)
+    {
+        args.Modifier /= SkillScaling.JumpCharges(SkillScaling.Level(skills, SharedSkillsSystem.AgilityId));
     }
 
     private void OnCollision(EntityUid uid, SkillProgressionComponent state, ref PreventCollideEvent args)
@@ -44,7 +50,7 @@ public sealed class SkillJumpSystem : EntitySystem
             || SkillScaling.Level(skills, SharedSkillsSystem.AgilityId) < SkillScaling.Expert
             || !TryComp<SkillProgressionComponent>(uid, out var state) || _timing.CurTime >= state.JumpRecharge)
             return true;
-        var charges = SkillScaling.Level(skills, SharedSkillsSystem.AgilityId) >= SkillScaling.Legendary ? 2 : 1;
+        var charges = SkillScaling.JumpCharges(SkillScaling.Level(skills, SharedSkillsSystem.AgilityId));
         return state.JumpsUsed < charges;
     }
 
@@ -79,7 +85,7 @@ public sealed class SkillJumpSystem : EntitySystem
             state.JumpRecharge = _timing.CurTime + TimeSpan.FromSeconds(proto.Modifiers["JumpCooldown"] * Math.Max(0.1f, cooldownModifier));
         }
         state.JumpsUsed++;
-        var charges = SkillScaling.Level(skills, SharedSkillsSystem.AgilityId) >= SkillScaling.Legendary ? 2 : 1;
+        var charges = SkillScaling.JumpCharges(SkillScaling.Level(skills, SharedSkillsSystem.AgilityId));
         dash.NextDash = state.JumpsUsed < charges ? _timing.CurTime : state.JumpRecharge;
         dash.DashButtonPressedTick = _timing.CurTick;
         Dirty(uid, state);

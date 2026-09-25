@@ -1,43 +1,19 @@
 - type: entity
-  id: ActionSkillLearnMagic
-  name: изучение заклинаний
-  description: Личное обучение. Одно базовое заклинание бесплатно, остальные стоят на 100 эссенции дороже гримуара.
-  components:
-  - type: Action
-    icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
-    itemIconStyle: NoItem
-  - type: InstantAction
-    event: !type:SkillLearnMagicActionEvent
-
-- type: entity
-  id: SkillPersonalSpellStore
-  name: личное обучение магии
+  parent: MedievalSpellBookBase
+  id: SkillLearningGrimoire
+  name: учебный гримуар
+  description: Одно базовое заклинание бесплатно, остальные стоят на 100 эссенции дороже. Привязка свободного обычного гримуара перенесёт в него накопленную эссенцию, а эту книгу обратит в пепел.
   categories: [ HideSpawnMenu ]
   components:
   - type: SkillLearningStore
-  - type: UserInterface
-    interfaces:
-      enum.ImperialStoreUiKey.Key:
-        type: ImperialStoreBoundUserInterface
   - type: ImperialStore
-    name: medieval-store-name
-    withdrawText: medieval-store-withdraw-button-text
-    currencyTitle: medieval-store-currency-title-text
-    ownerOnly: true
-    bonusCount: 5
-    categories:
-    - MedievalFireSpells
-    - MedievalLightSpells
-    - MedievalVodkaSpells
-    - MedievalEarthSpells
-    - MedievalDarknessSpells
-    currencyWhitelist:
-    - MagicMedievalFire
-    - MagicMedievalLight
-    - MagicMedievalVodka
-    - MagicMedievalEarth
-    - MagicMedievalDarkness
-    - ArchmagePoints
+    balance:
+      MagicMedievalFire: 0
+      MagicMedievalLight: 0
+      MagicMedievalVodka: 0
+      MagicMedievalEarth: 0
+      MagicMedievalDarkness: 0
+      ArchmagePoints: 0
 
 - type: imperialListing
   id: SkillArchmagicFire
@@ -45,7 +21,7 @@
   description: skills-buy-archmagic-desc
   icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
   cost:
-    MagicMedievalFire: 500
+    MagicMedievalFire: 200
   categories:
   - MedievalFireSpells
   conditions:
@@ -57,7 +33,7 @@
   description: skills-buy-archmagic-desc
   icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
   cost:
-    MagicMedievalLight: 500
+    MagicMedievalLight: 200
   categories:
   - MedievalLightSpells
   conditions:
@@ -69,7 +45,7 @@
   description: skills-buy-archmagic-desc
   icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
   cost:
-    MagicMedievalVodka: 500
+    MagicMedievalVodka: 200
   categories:
   - MedievalVodkaSpells
   conditions:
@@ -81,7 +57,7 @@
   description: skills-buy-archmagic-desc
   icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
   cost:
-    MagicMedievalEarth: 500
+    MagicMedievalEarth: 200
   categories:
   - MedievalEarthSpells
   conditions:
@@ -93,7 +69,7 @@
   description: skills-buy-archmagic-desc
   icon: { sprite: Imperial/Medieval/Misc/magic_book.rsi, state: icon }
   cost:
-    MagicMedievalDarkness: 500
+    MagicMedievalDarkness: 200
   categories:
   - MedievalDarknessSpells
   conditions:

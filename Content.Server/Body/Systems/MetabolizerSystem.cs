@@ -213,7 +213,8 @@ namespace Content.Server.Body.Systems
                             );
                         }
 
-                        var permission = new MetabolismEffectAttemptEvent(proto.ID, group.Id.ToString(), effect);
+                        var permission = new MetabolismEffectAttemptEvent(proto.ID, group.Id.ToString(), effect,
+                            solution.GetTotalPrototypeQuantity(proto.ID));
                         RaiseLocalEvent(actualEntity, ref permission);
                         if (!permission.Cancelled)
                             effect.Effect(args);

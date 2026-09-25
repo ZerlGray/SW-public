@@ -1,7 +1,4 @@
 using Content.Server.Actions;
-using Content.Server.Chat.Systems;
-using Content.Server.Imperial.Medieval.Chat;
-using Content.Shared.CombatMode.Pacification;
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Imperial.Medieval.Grab.Components;
@@ -10,7 +7,6 @@ using Content.Shared.Imperial.Medieval.Skills;
 using Content.Shared.Inventory;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Systems;
-using Content.Shared.StatusEffect;
 using Content.Shared.Stunnable;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
@@ -22,8 +18,6 @@ public sealed partial class SkillPerkSystem : EntitySystem
     [Dependency] private readonly ActionsSystem _actions = default!;
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly EntityLookupSystem _lookup = default!;
-    [Dependency] private readonly StatusEffectsSystem _status = default!;
     [Dependency] private readonly MobStateSystem _mobs = default!;
     [Dependency] private readonly SharedStaminaSystem _stamina = default!;
     [Dependency] private readonly SharedStunSystem _stun = default!;
@@ -31,7 +25,6 @@ public sealed partial class SkillPerkSystem : EntitySystem
     [Dependency] private readonly MovementSpeedModifierSystem _movement = default!;
     // Shared by the examination and strength-equipment sections.
     [Dependency] private readonly InventorySystem _inventory = default!;
-    private static readonly EntProtoId PacifyAction = "ActionSkillPacify";
     private static readonly EntProtoId RecoveryAction = "ActionSkillRecovery";
 
     private float Setting(string skill, string key) => _prototypes.Index<SkillPrototype>(skill).Modifiers[key];
@@ -42,7 +35,6 @@ public sealed partial class SkillPerkSystem : EntitySystem
     {
         SubscribeLocalEvent<SkillProfileChangedEvent>(OnProfile);
         SubscribeLocalEvent<SkillsComponent, MapInitEvent>(OnMapInit);
-        SubscribeLocalEvent<SkillsComponent, SkillPacifyActionEvent>(OnPacify);
         SubscribeLocalEvent<SkillsComponent, SkillRecoveryActionEvent>(OnRecovery);
         InitializeExamination();
         InitializeStrength();
@@ -55,18 +47,6 @@ public sealed partial class SkillPerkSystem : EntitySystem
     {
         var actions = EnsureComp<SkillGrantedActionsComponent>(uid);
         RefreshStrengthEquipment(uid, actions);
-        if (HasLevel(uid, SharedSkillsSystem.IntelligenceId, SkillScaling.Master))
-        {
-            _actions.AddAction(uid, ref actions.PacifyAction, PacifyAction);
-            if (actions.PacifyReadyAt > _timing.CurTime)
-                _actions.SetCooldown(actions.PacifyAction, actions.PacifyReadyAt - _timing.CurTime);
-        }
-        else
-        {
-            _actions.RemoveAction(uid, actions.PacifyAction);
-            actions.PacifyAction = null;
-        }
-
         if (HasLevel(uid, SharedSkillsSystem.EnduranceId, SkillScaling.Legendary))
         {
             _actions.AddAction(uid, ref actions.RecoveryAction, RecoveryAction);
@@ -78,36 +58,6 @@ public sealed partial class SkillPerkSystem : EntitySystem
             _actions.RemoveAction(uid, actions.RecoveryAction);
             actions.RecoveryAction = null;
         }
-    }
-
-    private void OnPacify(EntityUid uid, SkillsComponent skills, SkillPacifyActionEvent args)
-    {
-        var actions = EnsureComp<SkillGrantedActionsComponent>(uid);
-        if (args.Handled || _mobs.IsDead(uid) || !HasLevel(uid, SharedSkillsSystem.IntelligenceId, SkillScaling.Master)
-            || _timing.CurTime < actions.PacifyReadyAt)
-            return;
-
-        var duration = TimeSpan.FromSeconds(Setting(SharedSkillsSystem.IntelligenceId, "PacifyDuration"));
-        var targets = _lookup.GetEntitiesInRange(Transform(uid).Coordinates, ChatSystem.VoiceRange);
-        targets.Add(uid);
-        foreach (var target in targets)
-        {
-            if (!HasComp<Content.Shared.Mobs.Components.MobStateComponent>(target) || _mobs.IsDead(target))
-                continue;
-            if (target != uid)
-            {
-                var heard = new CanHearVoiceEvent(uid, false);
-                RaiseLocalEvent(target, ref heard);
-                if (heard.Cancelled)
-                    continue;
-            }
-            var status = EnsureComp<StatusEffectsComponent>(target);
-            status.AllowedEffects.Add("Pacified");
-            _status.TryAddStatusEffect<PacifiedComponent>(target, "Pacified", duration, true, status);
-        }
-        actions.PacifyReadyAt = _timing.CurTime + TimeSpan.FromSeconds(Setting(SharedSkillsSystem.IntelligenceId, "PacifyCooldown"));
-        _actions.SetCooldown(actions.PacifyAction, actions.PacifyReadyAt - _timing.CurTime);
-        args.Handled = true;
     }
 
     private void OnRecovery(EntityUid uid, SkillsComponent skills, SkillRecoveryActionEvent args)

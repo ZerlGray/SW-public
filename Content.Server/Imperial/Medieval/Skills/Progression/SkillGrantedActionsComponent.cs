@@ -6,9 +6,7 @@ namespace Content.Server.Imperial.Medieval.Skills.Progression;
 [RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class SkillGrantedActionsComponent : Component
 {
-    [DataField] public EntityUid? PacifyAction;
     [DataField] public EntityUid? RecoveryAction;
     [DataField] public int AppliedStrength = 10;
-    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField] public TimeSpan PacifyReadyAt;
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField] public TimeSpan RecoveryReadyAt;
 }

@@ -20,7 +20,7 @@
 | Ловкость: прыжок и уклонение | `Progression/SkillJumpSystem.cs`, `SkillDodgeSystem.cs` | `Progression/SkillPickCraftSystem.cs`: отмычка; кража остаётся в `Steal/RandomStealSystems.cs` рядом с `Skills/` |
 | Живучесть: действия в крите | `Progression/SkillActionSystem.cs` | `Progression/SkillVitalitySystem.cs`: еда, грязь, падения, передозировка; здоровье — `Systems/SkillsSystem.Vitality.cs` |
 | Выносливость: контроль и стамина | `Progression/SkillEnduranceSystem.cs`, `SkillResourceSystem.cs` | `Progression/SkillPerkSystem.cs`: активка восстановления |
-| Интеллект: работа, медицина и осмотр | `Progression/SkillActionSystem.cs`, `SkillWorkbenchSystem.cs` | `Progression/SkillPerkSystem.Examination.cs`; пацифизм — `SkillPerkSystem.cs`, языки — `Systems/SkillsSystem.Intelligence.cs` |
+| Интеллект: работа, медицина и осмотр | `Progression/SkillActionSystem.cs`, `SkillWorkbenchSystem.cs` | `Progression/SkillPerkSystem.Examination.cs`; языки — `Systems/SkillsSystem.Intelligence.cs` |
 | Интеллект: мана и заклинания | `Progression/SkillResourceSystem.cs` | `Progression/SkillMagicSystem.cs`: награды, цены, условия покупок; выдача заклинаний и UI остаются в `ImperialStoreSystem` |
 
 ## Как проходит изменение уровня
@@ -38,13 +38,17 @@
 | `SkillsComponent` | Текущие уровни и прежние таймеры низкой ловкости. |
 | `SkillProgressionComponent` | Исходные пороги ресурсов, выбранные языки и кулдауны пассивных бонусов. Сетевые поля нужны предсказанию прыжка, уклонения и контроля. |
 | `SkillGrantedActionsComponent` | Серверные кнопки, их кулдауны и предыдущий уровень силы для отзыва экипировки. |
-| `SkillMagicComponent` | Профессия мага, личный магазин и отметки уже полученных наград. |
+| `SkillMagicComponent` | Стартовая профессия мага и отметки уже полученных наград. Баланс, книги и покупки обслуживает обычный `GrimoireOwnerComponent`. |
 | `SkillConstitutionStateComponent` | Таймеры рисков еды, грязи и падений. |
 | `SkillDodgedProjectileComponent` | Кого уже пропустил конкретный снаряд; повторные эффекты того же попадания тоже отменяются. Для следующего броска отметки сбрасываются. |
 
 При снижении уровня кулдауны и полученные награды сохраняются намеренно. Иначе изменение характеристик позволяло бы сбрасывать ожидание или повторно получать эссенцию. Каждый обработчик проверяет доступность бонуса по текущему уровню.
 
 ## Границы с общими механиками
+
+`SkillsSystem` выдаёт учебный гримуар через `GrantStartingGrimoire` только при применении стартового профиля. Обычный пересчёт навыков книги не создаёт. `BindStoreOnEquipSystem.Learning.cs` разрешает единственную замену: учебный → свободный обычный. Переносится снимок покупок и баланса, обновляются ссылки возврата, старая книга превращается в пепел. Восстановление уничтоженной книги использует существующий `TryRestoreGrimoire`, не выдаёт награды повторно и не меняет тип книги.
+
+Количество прыжков и доля цены используют общий `SkillScaling.JumpCharges`; стоимость меняется существующим `CheckDashStaminaCostModifiersEvent`. Для передозировки `MetabolismEffectAttemptEvent.Amount` содержит фактическое количество реагента в растворе, а не объём, переработанный за тик.
 
 Удар/снаряд/контакт → `BeforeAttackEffectsEvent` на цели → `SkillDodgeSystem` → отмена до применения эффектов. Общие системы попаданий не вызывают уклонение напрямую. Для контакта со стационарным объектом уклонение не тратится.
 

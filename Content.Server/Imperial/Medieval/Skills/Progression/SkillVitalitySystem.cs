@@ -6,6 +6,7 @@ using Content.Shared.Damage;
 using Content.Shared.Damage.Events;
 using Content.Shared.EntityEffects;
 using Content.Shared.EntityEffects.EffectConditions;
+using Content.Shared.FixedPoint;
 using Content.Shared.Imperial.Medieval.Skills;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Nutrition;
@@ -21,7 +22,7 @@ using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 namespace Content.Server.Imperial.Medieval.Skills.Progression;
 
 [ByRefEvent]
-public record struct MetabolismEffectAttemptEvent(string Reagent, string Group, EntityEffect Effect, bool Cancelled = false);
+public record struct MetabolismEffectAttemptEvent(string Reagent, string Group, EntityEffect Effect, FixedPoint2 Amount, bool Cancelled = false);
 
 [RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class SkillConstitutionStateComponent : Component
@@ -72,8 +73,11 @@ public sealed class SkillVitalitySystem : EntitySystem
         if (args.Reagent == "Ethanol")
             args.Cancelled = true;
         var reagentId = args.Reagent;
+        var amount = args.Amount;
         if (Medicines.Contains(args.Reagent) && args.Group == "Poison"
-            && args.Effect.Conditions?.OfType<ReagentThreshold>().Any(x => x.Min > 0 && (x.Reagent == null || x.Reagent == reagentId)) == true)
+            && args.Effect.Conditions?.OfType<ReagentThreshold>().Any(x => x.Min > 0
+                && (x.Reagent == null || x.Reagent == reagentId)
+                && amount < x.Min * FixedPoint2.New(Setting("MedicinalOverdoseThresholdMultiplier"))) == true)
             args.Cancelled = true;
     }
 

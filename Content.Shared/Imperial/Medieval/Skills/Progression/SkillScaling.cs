@@ -18,11 +18,13 @@ public static class SkillScaling
 
     public static int Level(SkillsComponent skills, string id) => skills.Levels.GetValueOrDefault(id, Baseline);
 
+    public static int JumpCharges(int level) => level >= Legendary ? 3 : level >= Master ? 2 : 1;
+
     public static int PointCost(int level)
     {
         level = Math.Clamp(level, 1, 20);
         if (level <= Baseline)
-            return Baseline - level;
+            return Baseline - level + (level <= Basic ? 1 : 0) + (level == 1 ? 1 : 0);
         var cost = 0;
         for (var i = Baseline + 1; i <= level; i++)
             cost += i <= Expert ? 1 : i <= Master ? 2 : i < Legendary ? 3 : 4;

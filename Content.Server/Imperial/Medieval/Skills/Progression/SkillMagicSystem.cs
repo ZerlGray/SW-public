@@ -1,7 +1,7 @@
 using System.Linq;
-using Content.Server.Actions;
 using Content.Server.Imperial.ImperialStore;
 using Content.Server.Imperial.Medieval.Magic.BindStoreOnEquip;
+using Content.Server.Imperial.Medieval.Magic.MedievalSpawnInFreeSlot;
 using Content.Shared.FixedPoint;
 using Content.Shared.Imperial.ImperialStore;
 using Content.Shared.Imperial.Medieval.Magic.Mana;
@@ -19,9 +19,8 @@ public sealed class SkillMagicSystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly ImperialStoreSystem _store = default!;
-    [Dependency] private readonly ActionsSystem _actions = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
-    private static readonly EntProtoId LearnMagicAction = "ActionSkillLearnMagic";
+    [Dependency] private readonly BindStoreOnEquipSystem _grimoire = default!;
+    [Dependency] private readonly MedievalSpawnInFreeSlotSystem _placement = default!;
     private static readonly string[] Essence = { "MagicMedievalFire", "MagicMedievalLight", "MagicMedievalVodka", "MagicMedievalEarth", "MagicMedievalDarkness" };
     // Deliberately explicit: adding a senior spell or an upgrade can never silently make it free.
     private static readonly HashSet<string> FreeBasics = new() { "MedievalSpellSparkBeginner", "MedievalSpellEarthBedBeginner", "MedievalSpellFlashBeginner", "MedievalSpellDivineTouchBeginner", "MedievalSpellWaterSphereBeginner", "MedievalSpellCursedArrowBeginner" };
@@ -29,7 +28,6 @@ public sealed class SkillMagicSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeLocalEvent<SkillProfileChangedEvent>(OnProfile);
-        SubscribeLocalEvent<SkillsComponent, SkillLearnMagicActionEvent>(OnOpen);
         SubscribeLocalEvent<ImperialStoreComponent, ImperialStoreRefreshListingsEvent>(OnListings);
         SubscribeLocalEvent<ImperialStoreComponent, ImperialStorePurchaseAttemptEvent>(OnPurchase);
         SubscribeLocalEvent<ImperialStoreComponent, ImperialStorePurchasedEvent>(OnPurchased);
@@ -51,7 +49,7 @@ public sealed class SkillMagicSystem : EntitySystem
             state.ProfessionMage = items.Any(id => _prototypes.Index(id).Components.ContainsKey("BindStoreOnEquip"));
         }
         // This is read only at profession spawn, never when somebody picks up a book later.
-        state.ProfessionMage |= HasComp<GrimoireOwnerComponent>(uid);
+        state.ProfessionMage |= TryComp<GrimoireOwnerComponent>(uid, out var owner) && !_grimoire.IsLearningGrimoire(owner);
         if (state.ProfessionMage)
             EnsureComp<MagicRuneKnowledgeComponent>(uid);
     }
@@ -61,60 +59,47 @@ public sealed class SkillMagicSystem : EntitySystem
     public void Refresh(EntityUid uid)
     {
         var state = EnsureComp<SkillMagicComponent>(uid);
+        TryComp<GrimoireOwnerComponent>(uid, out var owner);
+        var learning = owner != null && _grimoire.IsLearningGrimoire(owner);
+        // Binding an ordinary grimoire gives full magic access, independently of intelligence.
+        if (Qualified(uid) || state.ProfessionMage || owner != null && !learning)
+        {
+            EnsureComp<ManaComponent>(uid);
+            EnsureComp<MagicRuneKnowledgeComponent>(uid);
+        }
         if (!Qualified(uid))
         {
-            _actions.RemoveAction(uid, state.LearningAction);
-            state.LearningAction = null;
-            if (state.PersonalStore is { } oldStore && !TerminatingOrDeleted(oldStore))
-                _store.CloseUi(oldStore);
+            if (learning && owner != null && !TerminatingOrDeleted(owner.GrimoireUid))
+                _store.CloseUi(owner.GrimoireUid);
             return;
         }
-        EnsureComp<ManaComponent>(uid);
-        EnsureComp<MagicRuneKnowledgeComponent>(uid);
-        if (state.ProfessionMage)
+        if (state.ProfessionMage && !state.MageRewardGranted && owner != null && !learning)
         {
-            _actions.RemoveAction(uid, state.LearningAction);
-            state.LearningAction = null;
-            if (!state.MageRewardGranted && TryComp<GrimoireOwnerComponent>(uid, out var owner)
-                && !TerminatingOrDeleted(owner.GrimoireUid) && TryComp<ImperialStoreComponent>(owner.GrimoireUid, out var store))
-            {
-                state.MageRewardGranted = _store.TryAddCurrency(new Dictionary<string, FixedPoint2> { [_random.Pick(Essence)] = FixedPoint2.New(Setting("MageEssence")) }, owner.GrimoireUid, store);
-            }
-            return;
-        }
-        if (state.PersonalStore == null || TerminatingOrDeleted(state.PersonalStore))
-        {
-            var personal = Spawn("SkillPersonalSpellStore", Transform(uid).Coordinates);
-            state.PersonalStore = personal;
-            _transform.SetParent(personal, uid);
-            _store.BindMind(personal, uid);
-        }
-        _actions.AddAction(uid, ref state.LearningAction, LearnMagicAction);
-    }
-
-    private void OnOpen(EntityUid uid, SkillsComponent skills, SkillLearnMagicActionEvent args)
-    {
-        if (args.Handled || !Qualified(uid) || !TryComp<SkillMagicComponent>(uid, out var state) || state.ProfessionMage)
-            return;
-        Refresh(uid);
-        if (state.PersonalStore is { } store)
-        {
-            _store.ToggleUi(uid, store);
-            args.Handled = true;
+            state.MageRewardGranted = _grimoire.TryAddCurrency(uid,
+                new Dictionary<EntProtoId, FixedPoint2> { [_random.Pick(Essence)] = FixedPoint2.New(Setting("MageEssence")) });
         }
     }
 
-    public bool TryAddPersonalEssence(EntityUid uid, Dictionary<EntProtoId, FixedPoint2> currency, bool bonus = false)
+    /// <summary>Called only when applying a starting profile, never by skill refresh or manual pickup.</summary>
+    public void GrantStartingGrimoire(EntityUid uid)
     {
-        if (!Qualified(uid) || !TryComp<SkillMagicComponent>(uid, out var state) || state.ProfessionMage || state.PersonalStore is not { } store)
-            return false;
-        return bonus ? _store.TryAddBonus(currency, store) : _store.TryAddCurrency(currency, store);
+        if (!Qualified(uid) || !TryComp<SkillMagicComponent>(uid, out var state) || !state.ProfessionKnown
+            || state.ProfessionMage || HasComp<GrimoireOwnerComponent>(uid))
+            return;
+
+        var book = Spawn("SkillLearningGrimoire", Transform(uid).Coordinates);
+        if (!_grimoire.TryBindGrimoire(book, uid, startingGrimoire: true))
+        {
+            QueueDel(book);
+            return;
+        }
+        _placement.TryPlaceInFreeSlot(uid, book);
     }
 
     private void OnListings(EntityUid uid, ImperialStoreComponent store, ref ImperialStoreRefreshListingsEvent args)
     {
         var owner = store.AccountOwner ?? args.Buyer;
-        if (!TryComp<SkillMagicComponent>(owner, out var state))
+        if (!HasComp<BindStoreOnEquipComponent>(uid) || !TryComp<SkillMagicComponent>(owner, out var state))
             return;
         var personal = HasComp<SkillLearningStoreComponent>(uid);
         foreach (var listing in store.Listings)
@@ -123,12 +108,15 @@ public sealed class SkillMagicSystem : EntitySystem
                 continue;
             if (listing.ID.StartsWith("SkillArchmagic"))
             {
-                listing.Cost = prototype.Cost.ToDictionary(x => x.Key, _ => FixedPoint2.New(Setting(state.ProfessionMage ? "ArchmagicMageCost" : "ArchmagicCost")));
+                listing.Cost = prototype.Cost.ToDictionary(x => x.Key, _ => FixedPoint2.New(Setting("ArchmagicCost")));
                 continue;
             }
-            if (!personal || !listing.Categories.Any(x => x.ToString().StartsWith("Medieval") && x.ToString().EndsWith("Spells")))
+            if (!listing.Categories.Any(x => x.ToString().StartsWith("Medieval") && x.ToString().EndsWith("Spells")))
                 continue;
+            // Also reset prices of listings transferred from a learning grimoire.
             listing.Cost = new(prototype.Cost);
+            if (!personal)
+                continue;
             if (!state.FreeSpellClaimed && FreeBasics.Contains(listing.ID))
                 listing.Cost.Clear();
             else

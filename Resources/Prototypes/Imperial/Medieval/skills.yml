@@ -72,6 +72,7 @@
     DirtyFoodChance: 0.1
     FragileFoodChance: 0.02
     IllnessCooldown: 300
+    MedicinalOverdoseThresholdMultiplier: 2
 
 - type: skill
   id: Endurance
@@ -118,9 +119,6 @@
     ManaPerLevel: 0.04
     ManaRegenPerLevel: 0.02
     LowStupidityChance: 0.2
-    PacifyDuration: 5
-    PacifyCooldown: 180
     SpellSurcharge: 100
-    MageEssence: 40
-    ArchmagicMageCost: 100
-    ArchmagicCost: 500
+    MageEssence: 60
+    ArchmagicCost: 200

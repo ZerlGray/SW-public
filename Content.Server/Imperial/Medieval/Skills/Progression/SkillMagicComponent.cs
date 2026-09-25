@@ -7,8 +7,6 @@ public sealed partial class SkillMagicComponent : Component
     [DataField] public bool ProfessionMage;
     [DataField] public bool MageRewardGranted;
     [DataField] public bool FreeSpellClaimed;
-    [DataField] public EntityUid? PersonalStore;
-    [DataField] public EntityUid? LearningAction;
 }
 
 [RegisterComponent]

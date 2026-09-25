@@ -91,6 +91,7 @@ public sealed partial class SkillsSystem : SharedSkillsSystem
             : GetDefaultSkillLevels(_proto);
         EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().RegisterProfession(args.Mob, args.JobId);
         SetSkills(args.Mob, levels);
+        EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>().GrantStartingGrimoire(args.Mob);
     }
 
     private void OnSetSkillLevel(SetSkillLevelMessage msg, EntitySessionEventArgs args)
@@ -133,7 +134,10 @@ public sealed partial class SkillsSystem : SharedSkillsSystem
 
     public void ApplySkills(EntityUid uid, Dictionary<string, int> skills)
     {
+        var magic = EntityManager.System<Content.Server.Imperial.Medieval.Skills.Progression.SkillMagicSystem>();
+        magic.RegisterProfession(uid, null);
         SetSkills(uid, skills);
+        magic.GrantStartingGrimoire(uid);
     }
 
     public override void Update(float frameTime)
