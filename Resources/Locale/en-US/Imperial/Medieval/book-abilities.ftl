@@ -62,6 +62,5 @@ book-ability-trace = { $spell }, ступень { $tier }; раса: { $race }; 
 book-ability-no-traces = Здесь нет различимых следов колдовства.
 book-ability-survey-title = Зарисовка местности ({ $x }, { $y }); север сверху, @ — место наблюдения.
 
-book-zaygo-take = Hand of Zaygo: take { $item } ({ $bag })
 
 book-ability-tame-requirements = You need food, a living wounded beast (at least 20 damage), and a free companion slot.

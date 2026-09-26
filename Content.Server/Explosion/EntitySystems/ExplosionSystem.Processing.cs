@@ -444,8 +444,6 @@ public sealed partial class ExplosionSystem
         float? fireStacksOnIgnite,
         EntityUid? cause)
     {
-        if (EntityManager.System<Content.Shared.Imperial.Medieval.Rituals.SharedRitualMagicSystem>()
-            .BlocksHostility(epicenter, _transformSystem.GetMapCoordinates(uid))) return;
         if (originalDamage != null)
         {
             GetEntitiesToDamage(uid, originalDamage, id, intensity);

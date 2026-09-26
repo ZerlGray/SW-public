@@ -56,7 +56,7 @@ public sealed class MedievalIdentitySystem : SharedMedievalIdentitySystem
             return false;
         }
 
-        observerComp.KnownIds.Add(GetPresentedIdentifier(introducer, introducerComp));
+        observerComp.KnownIds.Add(introducerComp.Identifier);
         Dirty(observer, observerComp);
 
         var introducerName = Identity.Name(introducer, EntityManager, introducer);
@@ -81,7 +81,7 @@ public sealed class MedievalIdentitySystem : SharedMedievalIdentitySystem
             return false;
         }
 
-        observerComp.KnownIds.Add(GetPresentedIdentifier(introducer, introducerComp));
+        observerComp.KnownIds.Add(introducerComp.Identifier);
         Dirty(observer, observerComp);
         return true;
     }

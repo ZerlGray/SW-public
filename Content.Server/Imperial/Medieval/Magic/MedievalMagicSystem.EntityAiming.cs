@@ -85,8 +85,6 @@ public sealed partial class MedievalMagicSystem
             var (cursorPosition, target) = targets[i];
             var targetMapCoords = target.HasValue ? _transformSystem.GetMapCoordinates(GetEntity(target.Value)) : cursorPosition;
 
-            if (RitualMagic.BlocksMagic(spawnMapCoords, targetMapCoords)) continue;
-
             var projectilePrototype = args.ProjectilePrototype;
             var evBefore = new MedievalBeforeSpawnEntityBySpellEvent()
             {
@@ -157,7 +155,6 @@ public sealed partial class MedievalMagicSystem
         foreach (var (cursorPosition, target) in targets)
         {
             var targetMapCoords = target.HasValue ? _transformSystem.GetMapCoordinates(GetEntity(target.Value)) : cursorPosition;
-            if (RitualMagic.BlocksMagic(spawnMapCoords, targetMapCoords)) continue;
 
             var projectilePrototype = args.ProjectilePrototype;
             var evBefore = new MedievalBeforeSpawnEntityBySpellEvent()
@@ -224,7 +221,6 @@ public sealed partial class MedievalMagicSystem
             TryChangeTarget(collidedItemEnts, ref target);
 
             var targetCoords = CoordsHelper.GetCoords(cursorPosition, target, EntityManager);
-            if (RitualMagic.BlocksCast(performer, targetCoords)) continue;
             args.Seed = args.Seed.HasValue ? args.Seed : args.Seed * i;
 
             if (target.HasValue)
@@ -285,8 +281,6 @@ public sealed partial class MedievalMagicSystem
         foreach (var (cursorPosition, netTarget) in targets)
         {
             var target = (cursorPosition, GetEntity(netTarget));
-            var targetPosition = target.Item2 is {} aimed ? _transformSystem.GetMapCoordinates(aimed) : cursorPosition;
-            if (RitualMagic.BlocksMagic(_transformSystem.GetMapCoordinates(performer), targetPosition)) continue;
 
             var spawnedEvent = new MedievalBeforeSpawnEntityBySpellEvent()
             {

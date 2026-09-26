@@ -9,6 +9,7 @@ using Content.Client.Imperial.Medieval.Skills;
 using Content.Shared.Imperial.Medieval.Factions.Components;
 using Content.Client.Imperial.Medieval.Factions.UI;
 using Content.Shared.Imperial.Medieval.Factions;
+using Content.Shared.Imperial.Medieval.Knowledge;
 
 namespace Content.Client.Paper.UI;
 
@@ -72,6 +73,13 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         var paperState = (PaperBoundUserInterfaceState) state;
         _window?.Populate(paperState, canRead);   // Imperial Medieval - canRead added
         _window?.SetKnowledgeControls(new KnowledgePaperControls(EntMan, Owner, player, paperState.Mode, SendMessage));
+    }
+
+    protected override void ReceiveMessage(BoundUserInterfaceMessage message)
+    {
+        base.ReceiveMessage(message);
+        if (message is FocusKnowledgeBookMessage)
+            _window?.MoveToFront();
     }
 
     private void InputOnTextEntered(string text)

@@ -19,7 +19,7 @@ public sealed partial class MedievalKnowledgeSystem
 
     private void InitializeSpawning()
     {
-        SubscribeLocalEvent<MagicBarrierComponent, MapInitEvent>(OnBarrierInit);
+        SubscribeLocalEvent<MagicBarrierComponent, MapInitEvent>(OnBarrierInit, after: [typeof(PaperSystem)]);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(_ => _seededMaps.Clear());
     }
 
@@ -59,9 +59,7 @@ public sealed partial class MedievalKnowledgeSystem
                 EnsureComp<MedievalCurrencyComponent>(uid).Price["Revent"] = price;
                 _metadata.SetEntityName(uid, Loc.GetString(knowledge.Name));
                 _metadata.SetEntityDescription(uid, Loc.GetString("knowledge-original-description"));
-                _paper.SetContent((uid, Comp<PaperComponent>(uid)), book.Encrypted
-                    ? Loc.GetString("knowledge-encrypted-content")
-                    : Loc.GetString(knowledge.Description));
+                RefreshBookContent((uid, book));
             }
         });
     }

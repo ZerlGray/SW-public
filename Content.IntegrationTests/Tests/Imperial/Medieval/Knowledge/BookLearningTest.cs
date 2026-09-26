@@ -7,13 +7,110 @@ using Content.Shared.Imperial.Medieval.Language;
 using Content.Shared.Imperial.Medieval.Trading;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
+using Content.Shared.Paper;
+using Content.Shared.UserInterface;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Localization;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests.Imperial.Medieval.Knowledge;
 
 [TestFixture]
 public sealed class BookLearningTest
 {
+    [Test]
+    public async Task OriginalContainsItsKnowledgeAndCipherDoesNotLeakIt()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        var prototypes = pair.Server.ResolveDependency<IPrototypeManager>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var system = entities.System<MedievalKnowledgeSystem>();
+            foreach (var knowledge in prototypes.EnumeratePrototypes<MedievalKnowledgePrototype>())
+            {
+                // Rare originals select their knowledge after spawning the common book prototype.
+                var original = entities.SpawnEntity("MedievalKnowledgeBook", map.GridCoords);
+                var book = entities.GetComponent<LearnableBookComponent>(original);
+                book.Knowledge = knowledge.ID;
+                book.Encrypted = knowledge.Tier >= 4;
+                system.RefreshBookContent((original, book));
+                var paper = entities.GetComponent<PaperComponent>(original);
+                var initialText = paper.Content;
+                Assert.That(paper.EditingDisabled, Is.True, knowledge.ID);
+                Assert.That(entities.GetComponent<ActivatableUIComponent>(original).VerbText.ToString(), Is.EqualTo("knowledge-read"));
+                Assert.That(book.Spent, Is.False, "Opening the pages must not consume the lesson.");
+                if (book.Encrypted)
+                {
+                    Assert.That(initialText, Does.Contain(Loc.GetString("knowledge-cipher-heading")), knowledge.ID);
+                    Assert.That(initialText, Does.Not.Contain(Loc.GetString(knowledge.Description)), knowledge.ID);
+                    Assert.That(system.BuildBookContent(book), Is.EqualTo(initialText), "Cipher must not change when reopened.");
+                }
+                else
+                {
+                    Assert.That(initialText, Does.Contain(Loc.GetString(knowledge.Name)), knowledge.ID);
+                    Assert.That(initialText, Does.Contain(Loc.GetString(knowledge.Description)), knowledge.ID);
+                    Assert.That(initialText, Does.Contain(Loc.GetString("knowledge-reading-instructions", ("seconds", book.StudySeconds))), knowledge.ID);
+                }
+            }
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task DecipheringOpensCipherThenTranslatedKnowledge()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var entities = pair.Server.ResolveDependency<IEntityManager>();
+        EntityUid reader = default;
+        EntityUid original = default;
+        EntityUid translation = default;
+        string cipher = string.Empty;
+        await pair.Server.WaitAssertion(() =>
+        {
+            reader = entities.SpawnEntity("MobHuman", map.GridCoords);
+            var languages = entities.EnsureComponent<LanguageSpeakerComponent>(reader);
+            languages.Languages["Common"] = LanguageKnowledge.Speak;
+            languages.Languages["Cursed"] = LanguageKnowledge.Speak;
+            var pen = entities.SpawnEntity("MedievalPen", map.GridCoords);
+            Assert.That(entities.System<SharedHandsSystem>().TryPickupAnyHand(reader, pen), Is.True);
+            original = entities.SpawnEntity("MedievalBookNecro3", map.GridCoords);
+            translation = entities.SpawnEntity("BookBase", map.GridCoords);
+            cipher = entities.GetComponent<PaperComponent>(original).Content;
+            var lesson = entities.GetComponent<LearnableBookComponent>(original);
+            lesson.TranslationSeconds = 0.1f;
+            var system = entities.System<MedievalKnowledgeSystem>();
+            system.GrantKnowledge(reader, "BookDecipherer");
+            Assert.That(system.TryTranslate(reader, translation, original, "Common"), Is.True);
+            Assert.That(entities.System<SharedUserInterfaceSystem>().IsUiOpen(original, PaperComponent.PaperUiKey.Key, reader), Is.True);
+            Assert.That(entities.GetComponent<PaperComponent>(original).Content, Is.EqualTo(cipher));
+        });
+        await pair.RunTicksSync(90);
+        await pair.Server.WaitAssertion(() =>
+        {
+            var edition = entities.GetComponent<LearnableBookComponent>(translation);
+            var paper = entities.GetComponent<PaperComponent>(translation);
+            Assert.Multiple(() =>
+            {
+                Assert.That(edition.Knowledge, Is.EqualTo("BookSpellScribing"));
+                Assert.That(edition.Language, Is.EqualTo("Common"));
+                Assert.That(edition.Encrypted, Is.False);
+                Assert.That(edition.Original, Is.False);
+                Assert.That(paper.Mode, Is.EqualTo(PaperComponent.PaperAction.Read));
+                Assert.That(paper.EditingDisabled, Is.True);
+                Assert.That(paper.Content, Does.Contain(Loc.GetString("book-knowledge-spell-scribing-name")));
+                Assert.That(paper.Content, Does.Contain(Loc.GetString("book-knowledge-spell-scribing-desc")));
+                Assert.That(paper.Content, Does.Contain(Loc.GetString("knowledge-reading-instructions", ("seconds", edition.StudySeconds))));
+                Assert.That(paper.Content, Does.Not.Contain(Loc.GetString("knowledge-cipher-heading")));
+                Assert.That(entities.GetComponent<PaperComponent>(original).Content, Is.EqualTo(cipher));
+                Assert.That(entities.System<SharedUserInterfaceSystem>().IsUiOpen(translation, PaperComponent.PaperUiKey.Key, reader), Is.True);
+            });
+        });
+        await pair.CleanReturnAsync();
+    }
+
     [Test]
     public async Task KnowledgeFollowsMindAndDoesNotTeachTheVacatedBody()
     {

@@ -334,18 +334,6 @@ public sealed class MobThresholdSystem : EntitySystem
         VerifyThresholds(uid, component);
     }
 
-    /// <summary>Re-evaluate a living body after temporary threshold suppression. This cannot revive the dead.</summary>
-    public void RefreshLivingThresholds(EntityUid uid)
-    {
-        if (!TryComp<MobStateComponent>(uid, out var state) || state.CurrentState == MobState.Dead ||
-            !TryComp<MobThresholdsComponent>(uid, out var thresholds) || !TryComp<DamageableComponent>(uid, out var damage))
-            return;
-        thresholds.CurrentThresholdState = thresholds.Thresholds.Reverse()
-            .Where(t => damage.TotalDamage >= t.Key).Select(t => t.Value).FirstOrDefault(MobState.Alive);
-        Dirty(uid, thresholds);
-        _mobStateSystem.UpdateMobState(uid, state);
-    }
-
     #endregion
 
     #region Private Implementation

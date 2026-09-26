@@ -6,7 +6,6 @@ using Content.Shared.Imperial.Medieval.IdentityManagement;
 using Content.Shared.Popups;
 using Content.Shared.StatusIcon;
 using Content.Shared.StatusIcon.Components;
-using Content.Shared.Imperial.Medieval.Rituals;
 using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Shared.Prototypes;
@@ -45,7 +44,6 @@ public sealed partial class MedievalFactionsSystem : SharedMedievalFactionsSyste
         SubscribeLocalEvent<FactionDataContainerComponent, AfterAutoHandleStateEvent>(AfterAutoHandleState);
 
         SubscribeLocalEvent<MedievalFactionMemberComponent, GetStatusIconsEvent>(OnGetStatusIcons);
-        SubscribeLocalEvent<ZaygoDisguiseComponent, GetStatusIconsEvent>(OnDisguiseIcons);
 
         SubscribeNetworkEvent<OpenOfferFactionRelationsEvent>(OnOpenOfferWindow);
         SubscribeNetworkEvent<OpenAcceptFactionRelationsEvent>(OnOpenAcceptWindow);
@@ -77,8 +75,6 @@ public sealed partial class MedievalFactionsSystem : SharedMedievalFactionsSyste
 
     private void OnGetStatusIcons(EntityUid uid, MedievalFactionMemberComponent comp, ref GetStatusIconsEvent args)
     {
-        if (HasComp<ZaygoDisguiseComponent>(uid))
-            return;
         if (uid == _player.LocalEntity)// Never show an icon on ourselves
              return;
 
@@ -101,20 +97,6 @@ public sealed partial class MedievalFactionsSystem : SharedMedievalFactionsSyste
             var iconId = comp.MenuAccess == FactionMenuAccess.Full ? _headIcon : _friendIcon;
             args.StatusIcons.Add(_proto.Index(iconId));
         }
-    }
-
-    private void OnDisguiseIcons(EntityUid uid, ZaygoDisguiseComponent comp, ref GetStatusIconsEvent args)
-    {
-        if (uid == _player.LocalEntity || comp.Faction == null ||
-            !TryComp<MedievalFactionMemberComponent>(_player.LocalEntity, out var viewer))
-            return;
-        if (comp.Faction == viewer.Faction.Id)
-        {
-            if (!_identity.IsIdentityMasked(uid))
-                args.StatusIcons.Add(_proto.Index(comp.FactionLeader ? _headIcon : _friendIcon));
-        }
-        else if (comp.AttackedFactions.Contains(viewer.Faction.Id) && IsRelationEnemy(viewer.Faction, comp.Faction))
-            args.StatusIcons.Add(_proto.Index(_enemyIcon));
     }
 
 

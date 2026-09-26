@@ -1,4 +1,5 @@
-knowledge-study = Read and learn
+knowledge-read = Read
+knowledge-study = Study
 knowledge-cannot-read = You cannot read this book right now.
 knowledge-unknown-language = You must personally understand the language of this edition.
 knowledge-already-known = You already possess this knowledge. This copy can still teach somebody else.

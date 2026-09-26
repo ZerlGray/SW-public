@@ -12,13 +12,10 @@ using Content.Shared.Interaction.Events;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
 using Content.Shared.Weapons.Melee;
-using Content.Server.Imperial.Medieval.Rituals;
-using Content.Shared.Storage;
 using Content.Shared.Verbs;
 using Content.Shared.Imperial.Medieval.Language;
 using Content.Shared.Weapons.Melee.Events;
 using System.Linq;
-using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
 
 namespace Content.IntegrationTests.Tests.Imperial.Medieval.BookAbilities;
@@ -26,42 +23,6 @@ namespace Content.IntegrationTests.Tests.Imperial.Medieval.BookAbilities;
 [TestFixture]
 public sealed class BookAbilityTest
 {
-    [Test]
-    public async Task SilentTheftTransfersOneExistingItemAndConsumesOneCharge()
-    {
-        await using var pair = await PoolManager.GetServerClient();
-        var map = await pair.CreateTestMap();
-        var entities = pair.Server.ResolveDependency<IEntityManager>();
-        EntityUid thief = default, bag = default, stolen = default, untouched = default;
-        await pair.Server.WaitAssertion(() =>
-        {
-            thief = entities.SpawnEntity("MobHuman", map.GridCoords);
-            bag = entities.SpawnEntity("ClothingBackpack", map.GridCoords);
-            stolen = entities.SpawnEntity("d6Dice", map.GridCoords);
-            untouched = entities.SpawnEntity("d6Dice", map.GridCoords);
-            var storage = entities.GetComponent<StorageComponent>(bag);
-            var containers = entities.System<SharedContainerSystem>();
-            Assert.That(containers.Insert(stolen, storage.Container), Is.True);
-            Assert.That(containers.Insert(untouched, storage.Container), Is.True);
-            entities.EnsureComponent<ZaygoTheftBlessingComponent>(thief).Charges = 1;
-            Assert.That(entities.System<MedievalZaygoTheftSystem>().TrySteal(thief, bag, bag, stolen), Is.True);
-        });
-        await pair.RunTicksSync(180);
-        await pair.Server.WaitAssertion(() =>
-        {
-            var storage = entities.GetComponent<StorageComponent>(bag);
-            Assert.Multiple(() =>
-            {
-                Assert.That(entities.System<SharedHandsSystem>().IsHolding(thief, stolen, out _), Is.True);
-                Assert.That(storage.Container.Contains(stolen), Is.False);
-                Assert.That(storage.Container.Contains(untouched), Is.True);
-                Assert.That(entities.GetComponent<ZaygoTheftBlessingComponent>(thief).Charges, Is.Zero);
-                Assert.That(entities.System<MedievalZaygoTheftSystem>().TrySteal(thief, bag, bag, untouched), Is.False);
-            });
-        });
-        await pair.CleanReturnAsync();
-    }
-
     [Test]
     public async Task VentriloquismUsesPersonAsSourceWithoutBorrowingTheirLanguage()
     {

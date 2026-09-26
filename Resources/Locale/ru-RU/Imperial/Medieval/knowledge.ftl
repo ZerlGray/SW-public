@@ -1,4 +1,5 @@
-knowledge-study = Прочитать и изучить
+knowledge-read = Прочитать
+knowledge-study = Изучить
 knowledge-cannot-read = Вы не можете прочитать эту книгу сейчас.
 knowledge-unknown-language = Сначала нужно самостоятельно изучить язык этой книги.
 knowledge-already-known = Вы уже владеете этим знанием. Книга остаётся пригодной для обучения другого читателя.

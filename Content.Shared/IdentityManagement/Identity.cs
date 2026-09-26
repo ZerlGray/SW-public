@@ -2,7 +2,6 @@
 using Content.Shared.Humanoid;
 using Content.Shared.IdentityManagement.Components;
 using Content.Shared.Imperial.Medieval.IdentityManagement;
-using Content.Shared.Imperial.Medieval.Rituals;
 
 namespace Content.Shared.IdentityManagement;
 
@@ -26,20 +25,6 @@ public static class Identity
             return meta.EntityName; // Identity component and such will not yet have initialized and may throw NREs
 
         var uidName = meta.EntityName;
-
-        if (ent.TryGetComponent<ZaygoDisguiseComponent>(uid, out var guise))
-        {
-            if (viewer == null || !guise.HideUnknown ||
-                ent.TryGetComponent<IdentityRequiresKnowledgeComponent>(viewer, out var observer) &&
-                (observer.KnownIds.Contains(guise.Identifier) || observer.Identifier == guise.Identifier))
-                return guise.DisplayName;
-
-            var age = ent.System<SharedHumanoidAppearanceSystem>()
-                .GetAgeRepresentation(guise.Visual.Species, guise.Visual.Age);
-            var gender = guise.Visual.Sex == Sex.Male ? "identity-gender-masculine" :
-                guise.Visual.Sex == Sex.Female ? "identity-gender-feminine" : "identity-gender-person";
-            return $"{age} {Loc.GetString(gender)}" + (showId ? $" ({guise.Identifier})" : "");
-        }
 
         if (!ent.TryGetComponent<IdentityComponent>(uid, out var identity))
             return uidName;

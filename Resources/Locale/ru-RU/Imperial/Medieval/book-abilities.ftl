@@ -62,6 +62,5 @@ book-ability-trace = { $spell }, ступень { $tier }; раса: { $race }; 
 book-ability-no-traces = Здесь нет различимых следов колдовства.
 book-ability-survey-title = Зарисовка местности ({ $x }, { $y }); север сверху, @ — место наблюдения.
 
-book-zaygo-take = Рука Зайго: забрать { $item } ({ $bag })
 
 book-ability-tame-requirements = Нужны корм, ослабленный живой зверь (не менее 20 повреждений) и свободное место спутника.

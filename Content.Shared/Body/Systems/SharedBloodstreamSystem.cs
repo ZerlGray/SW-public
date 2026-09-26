@@ -504,8 +504,6 @@ public abstract class SharedBloodstreamSystem : EntitySystem
             dnaData.DNA = Loc.GetString("forensics-dna-unknown");
 
         bloodData.Add(dnaData);
-        if (HasComp<Content.Shared.Humanoid.HumanoidAppearanceComponent>(uid))
-            bloodData.Add(new Content.Shared.Imperial.Medieval.Rituals.SapientBloodData());
 
         return bloodData;
     }

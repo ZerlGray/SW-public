@@ -2,7 +2,6 @@ using System.Linq;
 using Content.Server._CP14.Workbench;
 using Content.Server.Botany.Components;
 using Content.Server.Imperial.Medieval.Knowledge;
-using Content.Server.Imperial.Medieval.Rituals;
 using Content.Server.SpikeTrap.Components;
 using Content.Shared.Actions;
 using Content.Shared.Chemistry.Components;
@@ -37,7 +36,6 @@ public sealed partial class MedievalBookAbilitySystem : EntitySystem
 {
     [Dependency] private readonly MedievalKnowledgeSystem _knowledge = default!;
     [Dependency] private readonly MedievalCompanionSystem _companions = default!;
-    [Dependency] private readonly MedievalZaygoTheftSystem _theft = default!;
     [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
     [Dependency] private readonly SharedHandsSystem _hands = default!;
     [Dependency] private readonly SharedInteractionSystem _interaction = default!;
@@ -80,7 +78,6 @@ public sealed partial class MedievalBookAbilitySystem : EntitySystem
     private void OnVerbs(EntityUid uid, MetaDataComponent meta, GetVerbsEvent<AlternativeVerb> args)
     {
         if (!args.CanAccess || !args.CanInteract) return;
-        _theft.AddTheftVerbs(uid, args);
         var user = args.User;
         if (TryComp<BookPackedObjectComponent>(uid, out var packed))
         {

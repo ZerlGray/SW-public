@@ -15,6 +15,7 @@ using Content.Shared.Mind.Components;
 using Content.Shared.Paper;
 using Content.Shared.Popups;
 using Content.Shared.Tag;
+using Content.Shared.UserInterface;
 using Content.Shared.Verbs;
 using Robust.Shared.Prototypes;
 
@@ -36,6 +37,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
     [Dependency] private readonly TagSystem _tags = default!;
     [Dependency] private readonly PaperSystem _paper = default!;
     [Dependency] private readonly MetaDataSystem _metadata = default!;
+    [Dependency] private readonly SharedUserInterfaceSystem _ui = default!;
 
     public override void Initialize()
     {
@@ -43,7 +45,8 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         SubscribeLocalEvent<InitialKnowledgeComponent, ComponentStartup>(OnInitialKnowledge);
         SubscribeLocalEvent<MindContainerComponent, MindAddedMessage>(OnMindAdded);
         SubscribeLocalEvent<MindContainerComponent, MindRemovedMessage>(OnMindRemoved);
-        SubscribeLocalEvent<LearnableBookComponent, MapInitEvent>(OnBookInit);
+        SubscribeLocalEvent<LearnableBookComponent, MapInitEvent>(OnBookInit, after: [typeof(PaperSystem)]);
+        SubscribeLocalEvent<LearnableBookComponent, BeforeActivatableUIOpenEvent>(OnBookOpened, after: [typeof(PaperSystem)]);
         SubscribeLocalEvent<LearnableBookComponent, GetVerbsEvent<AlternativeVerb>>(OnBookVerbs);
         SubscribeLocalEvent<LearnableBookComponent, ExaminedEvent>(OnBookExamined);
         SubscribeLocalEvent<LearnableBookComponent, StudyBookMessage>(OnStudyMessage);
@@ -177,6 +180,9 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             RemComp<CurrencyComponent>(ent);
             RemComp<MedievalCurrencyComponent>(ent);
         }
+        if (TryComp<ActivatableUIComponent>(ent, out var activatable))
+            activatable.VerbText = "knowledge-read";
+        RefreshBookContent(ent);
     }
 
     private void OnBookExamined(Entity<LearnableBookComponent> ent, ref ExaminedEvent args)
@@ -250,6 +256,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             return;
         ent.Comp.Spent = true;
         Dirty(ent);
+        RefreshBookContent(ent);
         args.Handled = true;
         _popup.PopupEntity(Loc.GetString("knowledge-learned", ("knowledge", Loc.GetString(_prototypes.Index<MedievalKnowledgePrototype>(ent.Comp.Knowledge).Name))), ent, args.User);
     }
@@ -294,6 +301,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         if (_doAfter.TryStartDoAfter(doAfter, out var id))
         {
             manuscript.Writing = id;
+            OpenBook(writer, (source, original));
             return true;
         }
         original.TranslationTarget = null;
@@ -317,20 +325,21 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             // Commit the single lesson only after all validation. Plain text copying cannot reach this path.
             original.Spent = true;
             Dirty(source, original);
+            RefreshBookContent((source, original));
             var edition = AddComp<LearnableBookComponent>(ent);
             edition.Knowledge = original.Knowledge;
             edition.Language = ent.Comp.Language;
             edition.Original = false;
             edition.StudySeconds = original.StudySeconds;
+            edition.Translator = Name(args.User);
             Dirty(ent, edition);
             RemComp<CurrencyComponent>(ent);
             RemComp<MedievalCurrencyComponent>(ent);
             var knowledge = _prototypes.Index<MedievalKnowledgePrototype>(edition.Knowledge);
             _metadata.SetEntityName(ent, Loc.GetString("knowledge-translated-title", ("title", Loc.GetString(knowledge.Name))));
-            var paper = Comp<PaperComponent>(ent);
-            var translated = Loc.GetString("knowledge-edition-content", ("title", Loc.GetString(knowledge.Name)),
-                ("description", Loc.GetString(knowledge.Description)), ("author", Name(args.User)));
-            _paper.SetContent((ent, paper), translated + "\n\n" + paper.Content);
+            if (TryComp<ActivatableUIComponent>(ent, out var activatable))
+                activatable.VerbText = "knowledge-read";
+            OpenBook(args.User, (ent.Owner, edition));
             _popup.PopupEntity(Loc.GetString("knowledge-translation-complete"), ent, args.User);
             args.Handled = true;
         }

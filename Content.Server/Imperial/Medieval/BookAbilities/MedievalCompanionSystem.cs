@@ -5,12 +5,10 @@ using Content.Server.NPC.HTN;
 using Content.Server.NPC.Systems;
 using Content.Server.NPC.Components;
 using Content.Server.Imperial.Medieval.Boss;
-using Content.Server.Imperial.Medieval.Rituals;
 using Content.Shared.Actions;
 using Content.Shared.Damage;
 using Content.Shared.Humanoid;
 using Content.Shared.Imperial.Medieval.BookAbilities;
-using Content.Shared.Imperial.Medieval.Rituals;
 using Content.Shared.Mind.Components;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
@@ -58,7 +56,6 @@ public sealed class MedievalCompanionSystem : EntitySystem
     [Dependency] private readonly SharedActionsSystem _actions = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly NPCSteeringSystem _steering = default!;
-    [Dependency] private readonly SharedRitualMagicSystem _magic = default!;
     private TimeSpan _nextGuardReview;
 
     public override void Initialize()
@@ -169,8 +166,7 @@ public sealed class MedievalCompanionSystem : EntitySystem
 
     private void ResumeBrain(EntityUid beast, HTNComponent htn, MedievalCompanionComponent pet)
     {
-        var enabled = pet.Order != "stay" && !HasComp<MedievalPacifiedBeastComponent>(beast) &&
-            !(TryComp<RitualAnimatedComponent>(beast, out var animated) && (animated.Suppressed || _magic.IsSuppressed(beast)));
+        var enabled = pet.Order != "stay" && !HasComp<MedievalPacifiedBeastComponent>(beast);
         _htn.SetHTNEnabled((beast, htn), enabled);
         if (enabled) _htn.Replan(htn);
     }

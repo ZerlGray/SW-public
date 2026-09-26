@@ -12,6 +12,7 @@ public sealed partial class LearnableBookComponent : Component
     [DataField, AutoNetworkedField] public bool Encrypted;
     [DataField, AutoNetworkedField] public bool Original = true;
     [DataField, AutoNetworkedField] public bool Spent;
+    [DataField] public string? Translator;
     [DataField] public float StudySeconds = 120;
     [DataField] public float TranslationSeconds = 90;
     public DoAfterId? Reading;
@@ -35,6 +36,9 @@ public sealed partial class TranslateBookDoAfterEvent : SimpleDoAfterEvent;
 
 [Serializable, NetSerializable]
 public sealed class StudyBookMessage : BoundUserInterfaceMessage;
+
+[Serializable, NetSerializable]
+public sealed class FocusKnowledgeBookMessage : BoundUserInterfaceMessage;
 
 [Serializable, NetSerializable]
 public sealed class TranslateBookMessage(NetEntity source, string language) : BoundUserInterfaceMessage

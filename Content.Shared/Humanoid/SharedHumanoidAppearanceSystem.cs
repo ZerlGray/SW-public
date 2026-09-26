@@ -110,8 +110,6 @@ public abstract class SharedHumanoidAppearanceSystem : EntitySystem
 
     private void OnExamined(EntityUid uid, HumanoidAppearanceComponent component, ExaminedEvent args)
     {
-        if (TryComp<Content.Shared.Imperial.Medieval.Rituals.ZaygoDisguiseComponent>(uid, out var guise))
-            component = guise.Visual.ForRendering(component);
         var identity = Identity.Entity(uid, EntityManager);
         var species = GetSpeciesRepresentation(component.Species).ToLower();
         var age = GetAgeRepresentation(component.Species, component.Age);

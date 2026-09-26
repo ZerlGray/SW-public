@@ -25,11 +25,13 @@ public sealed class KnowledgePaperControls : BoxContainer
                 AddChild(new Label { Text = Loc.GetString(knowledge.Name) });
             var learn = new Button
             {
-                Text = Loc.GetString(lesson.Spent ? "knowledge-book-spent" : lesson.Encrypted ? "knowledge-book-encrypted" : "knowledge-study"),
+                Text = Loc.GetString("knowledge-study"),
                 Disabled = lesson.Spent || lesson.Encrypted,
             };
             learn.OnPressed += _ => send(new StudyBookMessage());
             AddChild(learn);
+            if (lesson.Spent || lesson.Encrypted)
+                AddChild(new Label { Text = Loc.GetString(lesson.Spent ? "knowledge-book-spent" : "knowledge-book-encrypted") });
             return;
         }
 

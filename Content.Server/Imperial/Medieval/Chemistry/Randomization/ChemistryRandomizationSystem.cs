@@ -13,7 +13,6 @@ using Content.Shared.Examine;
 using Content.Server.MedievalPotionChecker.Components;
 using Robust.Shared.Containers;
 using Content.Shared.Chemistry.Components;
-using Content.Server.Imperial.Medieval.Rituals;
 
 namespace Content.Server.Imperial.Medieval.ChemistryRandomization;
 
@@ -25,7 +24,6 @@ public sealed partial class ChemistryRandomizationSystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototype = default!;
     [Dependency] private readonly MetaDataSystem _meta = default!;
     [Dependency] private readonly IEntitySystemManager _ent = default!;
-    [Dependency] private readonly MedievalRitualLiquidSystem _ritualLiquids = default!;
 
     public override void Initialize()
     {
@@ -37,7 +35,6 @@ public sealed partial class ChemistryRandomizationSystem : EntitySystem
     }
     public void OnExamine(EntityUid uid, SolutionContainerManagerComponent component, ExaminedEvent args)
     {
-        _ritualLiquids.AddExamineText(uid, args);
         if (!HasComp<MedievalPotionCheckerComponent>(args.Examiner))
             return;
         if (!TryComp<ContainerManagerComponent>(uid, out var contman))

@@ -149,12 +149,6 @@ public sealed partial class MedievalMagicSystem
         var performer = GetEntity(args.Performer);
         var action = GetEntity(args.Action);
 
-        if (RitualMagic.BlocksCast(performer, GetCoordinates(args.Coordinates)))
-        {
-            RaiseSpellCastFailed(action, performer);
-            return false;
-        }
-
         if (spellType != TargetSpellType.TargetOnCurrentMousePosition) return true;
         if (!TryComp<MedievalTargetSpellComponent>(action, out var targetSpellComponent)) return true;
 

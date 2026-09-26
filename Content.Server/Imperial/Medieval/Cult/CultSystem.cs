@@ -171,8 +171,6 @@ namespace Content.Server.Cult
                         {
                             if (tp.Base != teleport.Base && tp.Sector == teleport.Sector && HasComp<MedievalSpikeTargetComponent>(target))
                             {
-                                if (EntityManager.System<Content.Shared.Imperial.Medieval.Rituals.SharedRitualMagicSystem>()
-                                    .BlocksCast(target, Transform(tp.Owner).Coordinates)) continue;
                                 var teleported = EnsureComp<CultTeleportedComponent>(target);
                                 teleported.Portal = from;
                                 var txform = Transform(target);
