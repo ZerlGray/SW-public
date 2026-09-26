@@ -16,62 +16,87 @@ namespace Content.Client.Imperial.Medieval.MedievalMap;
 public sealed partial class MedievalMapWindow : FancyWindow
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
-    private readonly SpriteSystem _spriteSystem = default!;
+    private readonly SpriteSystem _spriteSystem;
     private string? _texturePath;
-    public Action<Vector2, string>? OnAnnotate;
+    private int _pendingAnnotationIndex = -1;
+    public Action<string>? OnAnnotate;
 
 
     public MedievalMapWindow()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
-
         _spriteSystem = _entityManager.System<SpriteSystem>();
-
-        var vScrollBar = MapContainer.GetChild(1);
-        var hScrollBar = MapContainer.GetChild(2);
-
-        vScrollBar.ModulateSelfOverride = Color.Black;
-        hScrollBar.ModulateSelfOverride = Color.Black;
-        MapBackground.OnPlaceAnnotation += position => OnAnnotate?.Invoke(position, AnnotationTitle.Text);
+        foreach (var child in IllustrationContainer.Children)
+        {
+            if (child is ScrollBar)
+                child.ModulateSelfOverride = Color.Black;
+        }
+        Illustration.OnZoom += ZoomIllustration;
+        MapBackground.FieldNotesMode = true;
+        MapBackground.SetSize = new Vector2(float.NaN, float.NaN);
+        AnnotationTitle.OnTextEntered += _ => SaveTitle();
+        SaveAnnotationTitle.OnPressed += _ => SaveTitle();
         MapBackground.OnSelectAnnotation += SelectAnnotation;
-        MapBackground.OnZoom += ZoomMap;
     }
 
-    private void ZoomMap(float delta)
+    private void SaveTitle()
     {
-        if (MapBackground.Texture == null) return;
-
-        var minimumScale = (SetSize.X - 40) / MapBackground.Texture.Width;
-        var scale = Math.Clamp(MapBackground.TextureScale.X + delta / 10, minimumScale, minimumScale * 8);
-        MapBackground.TextureScale = new Vector2(scale);
-        MapBackground.SetSize = MapBackground.TextureScale * MapBackground.Texture.Size;
+        if (AnnotationEditor.Visible && !SaveAnnotationTitle.Disabled)
+            OnAnnotate?.Invoke(AnnotationTitle.Text);
     }
 
     #region Public API
 
-    public void UpdateBackground(string path)
-    {
-        if (_texturePath == path) return;
-        _texturePath = path;
-        var texture = _spriteSystem.Frame0(new SpriteSpecifier.Texture(new(path)));
-
-        MapBackground.Texture = texture;
-        MapBackground.TextureScale = (SetSize - new Vector2(40)) / texture.Size;
-        MapBackground.SetSize = MapBackground.TextureScale * texture.Size;
-    }
-
     public void UpdateAnnotations(MedievalMapBoundUiState state, bool canAnnotate)
     {
+        IllustrationContainer.Visible = !state.IsSurveyMap;
+        SurveyDescription.Visible = state.IsSurveyMap;
+        AnnotationListContainer.Visible = state.IsSurveyMap;
+        if (!state.IsSurveyMap)
+        {
+            UpdateIllustration(state.MapTexturePath);
+            MapBackground.Visible = false;
+            MapBackground.ClearState();
+            MapBackground.Annotations = new();
+            MapBackground.SelectedAnnotation = -1;
+            MapUnavailable.Visible = false;
+            AnnotationEditor.Visible = false;
+            AnnotationTitle.Text = "";
+            AnnotationList.DisposeAllChildren();
+            _pendingAnnotationIndex = -1;
+            return;
+        }
+
+        MapBackground.Visible = state.Geography != null;
+        MapUnavailable.Visible = state.Geography == null;
+        if (state.Geography != null)
+            MapBackground.UpdateState(state.Geography);
+        else
+            MapBackground.ClearState();
+
         MapBackground.Annotations = state.Annotations;
-        MapBackground.CanAnnotate = canAnnotate;
+        MapBackground.DisplayedWorldMap = state.DisplayedWorldMap;
         AnnotationEditor.Visible = canAnnotate;
-        SurveyDescription.SetMessage(canAnnotate ? state.PendingDescription : Loc.GetString("book-cartography-read-hint"));
+        var pendingIndex = canAnnotate && state.PendingAnnotationIndex >= 0 &&
+            state.PendingAnnotationIndex < state.Annotations.Count &&
+            state.Annotations[state.PendingAnnotationIndex].WorldMap == state.DisplayedWorldMap
+            ? state.PendingAnnotationIndex : -1;
+        SaveAnnotationTitle.Disabled = pendingIndex < 0;
+        if (pendingIndex >= 0 && pendingIndex != _pendingAnnotationIndex)
+        {
+            MapBackground.SelectedAnnotation = pendingIndex;
+            AnnotationTitle.Text = state.Annotations[pendingIndex].Title;
+        }
+        _pendingAnnotationIndex = pendingIndex;
+
         AnnotationList.DisposeAllChildren();
         for (var i = 0; i < state.Annotations.Count; i++)
         {
             var index = i;
             var annotation = state.Annotations[i];
+            if (annotation.WorldMap != state.DisplayedWorldMap)
+                continue;
             var button = new Button
             {
                 Text = $"{i + 1}. {annotation.Title}",
@@ -85,14 +110,65 @@ public sealed partial class MedievalMapWindow : FancyWindow
 
         if (!canAnnotate)
             AnnotationTitle.Text = "";
+
+        if (MapBackground.SelectedAnnotation >= 0 && MapBackground.SelectedAnnotation < state.Annotations.Count &&
+            state.Annotations[MapBackground.SelectedAnnotation].WorldMap == state.DisplayedWorldMap)
+            SelectAnnotation(MapBackground.SelectedAnnotation);
+        else
+        {
+            MapBackground.SelectedAnnotation = -1;
+            SurveyDescription.SetMessage(canAnnotate ? state.PendingDescription : Loc.GetString("book-cartography-read-hint"));
+        }
+    }
+
+    private void UpdateIllustration(string path)
+    {
+        if (_texturePath == path)
+            return;
+
+        _texturePath = path;
+        var texture = _spriteSystem.Frame0(new SpriteSpecifier.Texture(new(path)));
+        Illustration.Texture = texture;
+        Illustration.TextureScale = (SetSize - new Vector2(40)) / texture.Size;
+        Illustration.SetSize = Illustration.TextureScale * texture.Size;
+    }
+
+    private void ZoomIllustration(float delta)
+    {
+        if (Illustration.Texture == null)
+            return;
+
+        var minimumScale = (SetSize.X - 40) / Illustration.Texture.Width;
+        var scale = Math.Clamp(Illustration.TextureScale.X + delta / 10, minimumScale, minimumScale * 8);
+        Illustration.TextureScale = new Vector2(scale);
+        Illustration.SetSize = Illustration.TextureScale * Illustration.Texture.Size;
     }
 
     private void SelectAnnotation(int index)
     {
         if (index < 0 || index >= MapBackground.Annotations.Count) return;
+        if (MapBackground.Annotations[index].WorldMap != MapBackground.DisplayedWorldMap) return;
         MapBackground.SelectedAnnotation = index;
         SurveyDescription.SetMessage(MapBackground.Annotations[index].Description);
     }
 
     #endregion
+}
+
+/// <summary>The original illustrated map, with scrolling and zoom but no survey annotations.</summary>
+public sealed class MedievalMapIllustration : TextureRect
+{
+    public Action<float>? OnZoom;
+
+    public MedievalMapIllustration()
+    {
+        MouseFilter = MouseFilterMode.Stop;
+    }
+
+    protected override void MouseWheel(GUIMouseWheelEventArgs args)
+    {
+        base.MouseWheel(args);
+        OnZoom?.Invoke(args.Delta.Y);
+        args.Handle();
+    }
 }

@@ -1,0 +1,9 @@
+- type: entity
+  id: MedievalSurveyMap
+  parent: MedievalServerMap
+  name: field map
+  description: A survey of one region, with numbered locations and the traveller's field notes.
+  components:
+  - type: MedievalMap
+    isSurveyMap: true
+    mapTexturePath: ""

@@ -21,7 +21,7 @@ public sealed class MedievalMapBoundUserInterface : BoundUserInterface
         base.Open();
 
         _window = this.CreateWindow<MedievalMapWindow>();
-        _window.OnAnnotate += (position, title) => SendMessage(new MedievalMapAnnotateMessage(position, title));
+        _window.OnAnnotate += title => SendMessage(new MedievalMapAnnotateMessage(title));
         _window.OpenCenteredRight();
     }
 
@@ -36,7 +36,6 @@ public sealed class MedievalMapBoundUserInterface : BoundUserInterface
         _window.MaxSize = msg.Size;
         _window.SetSize = msg.Size;
 
-        _window.UpdateBackground(msg.MapTexturePath);
         _window.UpdateAnnotations(msg, msg.Surveyor != null &&
             msg.Surveyor == EntMan.GetNetEntity(_players.LocalEntity));
     }
