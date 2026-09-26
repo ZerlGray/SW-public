@@ -1,6 +1,5 @@
 using System.Text;
 using Content.Shared.Imperial.Medieval.Knowledge;
-using Content.Shared.Imperial.Medieval.Language;
 using Content.Shared.Paper;
 using Content.Shared.UserInterface;
 using Robust.Shared.Utility;
@@ -41,19 +40,14 @@ public sealed partial class MedievalKnowledgeSystem
     public string BuildBookContent(LearnableBookComponent book)
     {
         if (book.Encrypted)
-            return Loc.GetString("knowledge-cipher-heading") + "\n\n" + CipherPage(book.Knowledge, book.Language) +
-                   "\n\n" + Loc.GetString("knowledge-encrypted-content");
+            return Loc.GetString("knowledge-cipher-heading") + "\n\n" + CipherPage(book.Knowledge, book.Language);
         if (!_prototypes.TryIndex<MedievalKnowledgePrototype>(book.Knowledge, out var knowledge))
             return string.Empty;
 
-        var language = _prototypes.TryIndex<LanguagePrototype>(book.Language, out var lang) ? lang.LocalizedName : book.Language;
         var text = new StringBuilder();
-        text.AppendLine(Loc.GetString(knowledge.Name));
-        text.AppendLine(Loc.GetString("knowledge-book-examine", ("tier", knowledge.Tier), ("language", language)));
+        text.AppendLine(book.Title ?? Loc.GetString(knowledge.BookTitle));
         text.AppendLine();
-        text.AppendLine(Loc.GetString(knowledge.Description));
-        text.AppendLine();
-        text.AppendLine(Loc.GetString("knowledge-reading-instructions", ("seconds", book.StudySeconds)));
+        text.AppendLine(book.Text ?? Loc.GetString(knowledge.BookText));
         if (book.Translator != null)
         {
             text.AppendLine();

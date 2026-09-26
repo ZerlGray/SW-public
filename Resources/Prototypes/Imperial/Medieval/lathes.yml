@@ -5,6 +5,9 @@
   name: MedievalStoneWorkerPlace
   description: MedievalStoneWorkerPlace
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -81,6 +84,9 @@
   name: MedievalStoneWizardPlace
   description: MedievalStoneWizardPlace
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -149,6 +155,9 @@
   name: MedievalWizardPlace
   description: MedievalWizardPlace
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -221,6 +230,9 @@
   description: MedievalWizardPotion
   noSpawn: true
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -297,6 +309,9 @@
   name: MedievalWizardGrass
   description: MedievalWizardGrass
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -381,6 +396,9 @@
   noSpawn: true
   description: MedievalKeybench
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -457,6 +475,9 @@
   name: mortar
   description: From BlenderTech. Will It Blend? Let's find out!
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Transform
@@ -522,6 +543,9 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -606,6 +630,9 @@
   name: campfire
   description: It's fire.
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Microwave
@@ -679,6 +706,9 @@
   name: MedievalAlcPlace
   description: It produces aroows and range weapon using steel leather and wood.
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -750,6 +780,9 @@
   id: CP14BaseWorkbench
   abstract: true
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: ActivatableUI
     key: enum.CP14WorkbenchUiKey.Key
   - type: Climbable
@@ -771,6 +804,9 @@
   - BaseStructure
   id: MedievalMeltingPlace
   components:
+  - type: BookPackableWorkbench
+  - type: RDWeight
+    value: 40
   - type: Climbable
   - type: Clickable
   - type: TrashDefendArea

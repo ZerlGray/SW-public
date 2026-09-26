@@ -1,4 +1,5 @@
 using Content.Shared.Imperial.Medieval.MedievalMap;
+using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 
@@ -7,6 +8,7 @@ namespace Content.Client.Imperial.Medieval.MedievalMap;
 
 public sealed class MedievalMapBoundUserInterface : BoundUserInterface
 {
+    [Dependency] private readonly IPlayerManager _players = default!;
     [ViewVariables]
     private MedievalMapWindow? _window;
 
@@ -19,6 +21,7 @@ public sealed class MedievalMapBoundUserInterface : BoundUserInterface
         base.Open();
 
         _window = this.CreateWindow<MedievalMapWindow>();
+        _window.OnAnnotate += (position, title) => SendMessage(new MedievalMapAnnotateMessage(position, title));
         _window.OpenCenteredRight();
     }
 
@@ -34,5 +37,7 @@ public sealed class MedievalMapBoundUserInterface : BoundUserInterface
         _window.SetSize = msg.Size;
 
         _window.UpdateBackground(msg.MapTexturePath);
+        _window.UpdateAnnotations(msg, msg.Surveyor != null &&
+            msg.Surveyor == EntMan.GetNetEntity(_players.LocalEntity));
     }
 }

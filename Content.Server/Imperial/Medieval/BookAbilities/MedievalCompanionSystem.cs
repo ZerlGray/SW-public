@@ -228,6 +228,31 @@ public sealed class MedievalCompanionSystem : EntitySystem
         if (args.DamageIncreased) EndPacification(uid);
     }
 
+    /// <summary>Ends training's quiet interval and, on failure, immediately makes the trainer a combat target.</summary>
+    public void ReleaseTraining(EntityUid beast, EntityUid? attacker)
+    {
+        EndPacification(beast);
+        if (attacker is not { } target || TerminatingOrDeleted(target) ||
+            !TryComp<HTNComponent>(beast, out var htn) ||
+            !TryComp<MobStateComponent>(beast, out var state) || state.CurrentState != MobState.Alive ||
+            TryComp<MindContainerComponent>(beast, out var mind) && mind.HasMind)
+            return;
+
+        ResetPlan(htn);
+        _factions.AggroEntity(beast, target);
+        _npc.SetBlackboard(beast, NPCBlackboard.UtilityTarget, target);
+        if (TryComp<NPCTargetMemoryComponent>(beast, out var memory))
+        {
+            memory.Target = target;
+            memory.LastSeen = _timing.CurTime;
+            memory.LastKnownCoordinates = Transform(target).Coordinates;
+        }
+        _htn.SetHTNEnabled((beast, htn), true);
+        _htn.Replan(htn);
+        EnsureComp<NPCMeleeCombatComponent>(beast).Target = target;
+        _npc.WakeNPC(beast, htn);
+    }
+
     private void EndPacification(EntityUid uid)
     {
         if (!TryComp<MedievalPacifiedBeastComponent>(uid, out var comp)) return;

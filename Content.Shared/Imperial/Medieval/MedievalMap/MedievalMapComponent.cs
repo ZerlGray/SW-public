@@ -14,4 +14,8 @@ public sealed partial class MedievalMapComponent : Component
 
     [DataField]
     public Vector2 Size = new Vector2(790, 790);
+
+    /// <summary>Field notes belong to this physical map and travel with it.</summary>
+    [DataField]
+    public List<MedievalMapAnnotation> Annotations = new();
 }

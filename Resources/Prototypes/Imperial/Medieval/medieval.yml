@@ -2225,6 +2225,12 @@
   - type: Item
     sprite: Imperial/Medieval/Misc/mdvgps.rsi
   - type: HandheldGPS
+  - type: UserInterface
+    interfaces:
+      enum.MedievalMapUIKey.Key:
+        type: MedievalMapBoundUserInterface
+  - type: MedievalMap
+    mapTexturePath: /Textures/Imperial/Medieval/Misc/map_tabletop/tabletopRU.png
 
 - type: entity
   id: MedievalBloodChemistryBottle
@@ -3019,12 +3025,6 @@
   name: book
   description: The book is in good condition
   components:
-    - type: LearnableBook
-      knowledge: BookMagicTraces
-      language: Cursed
-      encrypted: true
-      studySeconds: 240
-      translationSeconds: 180
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:
@@ -3055,12 +3055,6 @@
   name: book
   description: The book is in good condition
   components:
-    - type: LearnableBook
-      knowledge: BookVentriloquism
-      language: Cursed
-      encrypted: true
-      studySeconds: 240
-      translationSeconds: 180
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:
@@ -3091,12 +3085,6 @@
   name: book
   description: The book is in good condition
   components:
-    - type: LearnableBook
-      knowledge: BookSpellScribing
-      language: Cursed
-      encrypted: true
-      studySeconds: 300
-      translationSeconds: 240
     - type: Sprite
       sprite: Imperial/Medieval/Misc/mdv_books.rsi
       layers:

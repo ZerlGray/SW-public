@@ -1,5 +1,6 @@
 <controls:FancyWindow xmlns="https://spacestation14.io"
     xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+    xmlns:map="clr-namespace:Content.Client.Imperial.Medieval.MedievalMap"
     Title="{Loc 'medieval-map-window'}"
     MinSize="900 900"
     MaxSize="900 900"
@@ -7,7 +8,17 @@
     Resizable="false"
     MouseFilter="Pass"
 >
-    <ScrollContainer MouseFilter="Ignore" HorizontalExpand="True" VerticalExpand="True" Name="MapContainer">
-        <TextureRect Name="MapBackground" />
-    </ScrollContainer>
+    <BoxContainer Orientation="Vertical" SeparationOverride="5">
+        <ScrollContainer MouseFilter="Pass" HorizontalExpand="True" VerticalExpand="True" Name="MapContainer">
+            <map:MedievalMapCanvas Name="MapBackground" />
+        </ScrollContainer>
+        <BoxContainer Name="AnnotationEditor" Orientation="Vertical" Visible="False">
+            <Label Text="{Loc 'book-cartography-place-hint'}" />
+            <LineEdit Name="AnnotationTitle" PlaceHolder="{Loc 'book-cartography-title-placeholder'}" />
+        </BoxContainer>
+        <RichTextLabel Name="SurveyDescription" MaxHeight="95" />
+        <ScrollContainer MinHeight="70" MaxHeight="140" HorizontalExpand="True">
+            <BoxContainer Name="AnnotationList" Orientation="Vertical" HorizontalExpand="True" />
+        </ScrollContainer>
+    </BoxContainer>
 </controls:FancyWindow>

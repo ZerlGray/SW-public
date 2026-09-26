@@ -13,8 +13,12 @@ public sealed partial class LearnableBookComponent : Component
     [DataField, AutoNetworkedField] public bool Original = true;
     [DataField, AutoNetworkedField] public bool Spent;
     [DataField] public string? Translator;
-    [DataField] public float StudySeconds = 120;
-    [DataField] public float TranslationSeconds = 90;
+    /// <summary>Optional overrides; zero uses the knowledge tier's reading time.</summary>
+    [DataField, AutoNetworkedField] public float StudySeconds;
+    [DataField, AutoNetworkedField] public float TranslationSeconds;
+    // Server-only plaintext, including the original story of an encrypted edition.
+    [DataField] public string? Text;
+    [DataField] public string? Title;
     public DoAfterId? Reading;
     public EntityUid? TranslationTarget;
 }

@@ -48,6 +48,7 @@ public sealed partial class BookBrokenGuardComponent : Component
 public sealed partial class BookPackedObjectComponent : Component
 {
     [DataField] public bool WasAnchored;
+    [DataField] public Angle WorldRotation;
     [DataField] public string Ability = string.Empty;
 }
 

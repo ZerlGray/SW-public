@@ -1,10 +1,16 @@
 using System.Numerics;
+using Content.Client.ContextMenu.UI;
+using Content.Client.Gameplay;
+using Content.Client.Viewport;
 using Content.Shared.Interaction;
 using Content.Shared.Whitelist;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.Player;
+using Robust.Client.State;
+using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
@@ -27,8 +33,11 @@ public sealed class TargetOutlineSystem : EntitySystem
     [Dependency] private readonly SharedInteractionSystem _interactionSystem = default!;
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private readonly SharedTransformSystem _transformSystem = default!;
+    [Dependency] private readonly IStateManager _stateManager = default!;
+    [Dependency] private readonly IUserInterfaceManager _uiManager = default!;
 
     private bool _enabled = false;
+    private bool _hoveredOnly;
 
     /// <summary>
     ///     Whitelist that the target must satisfy.
@@ -95,7 +104,7 @@ public sealed class TargetOutlineSystem : EntitySystem
         RemoveHighlights();
     }
 
-    public void Enable(float range, bool checkObstructions, Func<EntityUid, bool>? predicate, EntityWhitelist? whitelist, EntityWhitelist? blacklist, CancellableEntityEventArgs? validationEvent)
+    public void Enable(float range, bool checkObstructions, Func<EntityUid, bool>? predicate, EntityWhitelist? whitelist, EntityWhitelist? blacklist, CancellableEntityEventArgs? validationEvent, bool hoveredOnly = false)
     {
         Range = range;
         CheckObstruction = checkObstructions;
@@ -103,8 +112,9 @@ public sealed class TargetOutlineSystem : EntitySystem
         Whitelist = whitelist;
         Blacklist = blacklist;
         ValidationEvent = validationEvent;
+        _hoveredOnly = hoveredOnly;
 
-        _enabled = Predicate != null || Whitelist != null || Blacklist != null || ValidationEvent != null;
+        _enabled = _hoveredOnly || Predicate != null || Whitelist != null || Blacklist != null || ValidationEvent != null;
     }
 
     public override void Update(float frameTime)
@@ -127,9 +137,7 @@ public sealed class TargetOutlineSystem : EntitySystem
 
         // find possible targets on screen
         // TODO: Duplicated in SpriteSystem and DragDropSystem. Should probably be cached somewhere for a frame?
-        var mousePos = _eyeManager.PixelToMap(_inputManager.MouseScreenPosition).Position;
-        var bounds = new Box2(mousePos - LookupVector, mousePos + LookupVector);
-        var pvsEntities = _lookup.GetEntitiesIntersecting(_eyeManager.CurrentEye.Position.MapId, bounds, LookupFlags.Approximate | LookupFlags.Static);
+        var pvsEntities = GetPossibleTargets();
         var spriteQuery = GetEntityQuery<SpriteComponent>();
 
         foreach (var entity in pvsEntities)
@@ -184,6 +192,34 @@ public sealed class TargetOutlineSystem : EntitySystem
             sprite.RenderOrder = EntityManager.CurrentTick.Value;
             _highlightedSprites.Add(sprite);
         }
+    }
+
+    private IEnumerable<EntityUid> GetPossibleTargets()
+    {
+        if (!_hoveredOnly)
+        {
+            var mousePos = _eyeManager.PixelToMap(_inputManager.MouseScreenPosition).Position;
+            var bounds = new Box2(mousePos - LookupVector, mousePos + LookupVector);
+            return _lookup.GetEntitiesIntersecting(_eyeManager.CurrentEye.Position.MapId, bounds,
+                LookupFlags.Approximate | LookupFlags.Static);
+        }
+
+        // Book abilities act on the very same sprite as a click, not every nearby fixture.
+        EntityUid? hovered = null;
+        if (_stateManager.CurrentState is GameplayStateBase screen &&
+            _uiManager.CurrentlyHovered is IViewportControl viewport && _inputManager.MouseScreenPosition.IsValid)
+        {
+            var coordinates = viewport.PixelToMap(_inputManager.MouseScreenPosition.Position);
+            hovered = viewport is ScalingViewport scaling
+                ? screen.GetClickedEntity(coordinates, scaling.Eye)
+                : screen.GetClickedEntity(coordinates);
+        }
+        else if (_uiManager.CurrentlyHovered is EntityMenuElement element)
+        {
+            hovered = element.Entity;
+        }
+
+        return hovered is { } target ? new[] { target } : Array.Empty<EntityUid>();
     }
 
     private void RemoveHighlights()

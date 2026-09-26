@@ -11,6 +11,7 @@ using Content.Shared.Damage;
 using Content.Server.MagicBarrier.Components;
 using Content.Server.Imperial.Medieval.GameTicking.Rules;
 using Content.Shared.Imperial.Medieval.GameTicking.Rules;
+using Content.Shared.Imperial.Medieval.BookAbilities;
 
 namespace Content.Server.MagicPotionsMaker
 {
@@ -60,6 +61,7 @@ namespace Content.Server.MagicPotionsMaker
             var xform = Transform(component.Owner);
             var coords = xform.Coordinates;
             component.DeactiveTrapEntity = Spawn(component.DeactiveTrap, coords);
+            EnsureComp<SpikeTrapVisualComponent>(component.DeactiveTrapEntity.Value).Controller = uid;
             Audio.PlayPvs(new SoundPathSpecifier(component.DeactiveSoundEffect), uid, AudioParams.Default.WithVariation(0.15f));
 
             component.StartTime = _timing.CurTime;
@@ -97,6 +99,7 @@ namespace Content.Server.MagicPotionsMaker
                         if (comp.DeactiveTrapEntity != null)
                             QueueDel(comp.DeactiveTrapEntity);
                         comp.ActiveTrapEntity = Spawn(comp.ActiveTrap, coords);
+                        EnsureComp<SpikeTrapVisualComponent>(comp.ActiveTrapEntity.Value).Controller = comp.Owner;
                         Audio.PlayPvs(new SoundPathSpecifier(comp.ActiveSoundEffect), comp.Owner, AudioParams.Default.WithVariation(0.15f));
                         comp.Ready = false;
                         comp.Cooldown = 0.6f;

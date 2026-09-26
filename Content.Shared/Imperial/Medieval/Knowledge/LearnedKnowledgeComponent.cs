@@ -4,7 +4,7 @@ using Content.Shared.Imperial.Medieval.Language;
 namespace Content.Shared.Imperial.Medieval.Knowledge;
 
 /// <summary>Authoritative on a mind, mirrored on its current body for predicted checks.</summary>
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState(raiseAfterAutoHandleState: true)]
 public sealed partial class LearnedKnowledgeComponent : Component
 {
     [DataField, AutoNetworkedField] public HashSet<string> Knowledge = new();

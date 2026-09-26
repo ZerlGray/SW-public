@@ -9,6 +9,9 @@ public sealed partial class MedievalKnowledgePrototype : IPrototype
     [IdDataField] public string ID { get; private set; } = default!;
     [DataField(required: true)] public LocId Name = string.Empty;
     [DataField(required: true)] public LocId Description = string.Empty;
+    [DataField(required: true)] public LocId BookTitle = string.Empty;
+    [DataField(required: true)] public LocId BookText = string.Empty;
+    [DataField(required: true)] public EntProtoId OriginalBook;
     [DataField] public int Tier = 1;
     [DataField] public string? Language;
     [DataField] public List<EntProtoId> Actions = new();

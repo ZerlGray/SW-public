@@ -1294,7 +1294,7 @@
   - type: AntiSSDFreeArea
 
 - type: entity
-  name: MedievalSpikePoint
+  name: шиповая ловушка
   id: MedievalSpikePoint
   parent: MarkerBase
   components:
@@ -1304,10 +1304,13 @@
   - type: SpikeTrap
 
 - type: entity
-  name: lightning
+  name: шиповая ловушка
   id: MedievalSpikeDeactivateEffect
   noSpawn: true
   components:
+  - type: Clickable
+  - type: InteractionOutline
+  - type: SpikeTrapVisual
   - type: Sprite
     drawdepth: FloorTiles
     sprite: /Textures/Imperial/Medieval/Misc/spiketrap.rsi
@@ -1320,10 +1323,13 @@
     - HideContextMenu
 
 - type: entity
-  name: lightning
+  name: шиповая ловушка
   id: MedievalSpikeActivateEffect
   noSpawn: true
   components:
+  - type: Clickable
+  - type: InteractionOutline
+  - type: SpikeTrapVisual
   - type: Sprite
     drawdepth: FloorTiles
     sprite: /Textures/Imperial/Medieval/Misc/spiketrap.rsi

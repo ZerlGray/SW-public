@@ -1,5 +1,6 @@
 using Content.Shared.Imperial.Medieval.Knowledge;
 using Content.Shared.Imperial.Medieval.Language;
+using Content.Shared.Imperial.Medieval.Skills;
 using Content.Shared.Paper;
 using Content.Shared.Interaction;
 using Content.Shared.Tag;
@@ -19,13 +20,17 @@ public sealed class KnowledgePaperControls : BoxContainer
         if (!user.HasValue)
             return;
         var prototypes = IoCManager.Resolve<IPrototypeManager>();
+        var intelligence = entities.TryGetComponent<SkillsComponent>(user.Value, out var skills)
+            ? skills.Levels.GetValueOrDefault(SharedSkillsSystem.IntelligenceId, 10)
+            : 10;
         if (entities.TryGetComponent<LearnableBookComponent>(book, out var lesson))
         {
             if (prototypes.TryIndex<MedievalKnowledgePrototype>(lesson.Knowledge, out var knowledge))
                 AddChild(new Label { Text = Loc.GetString(knowledge.Name) });
             var learn = new Button
             {
-                Text = Loc.GetString("knowledge-study"),
+                Text = Loc.GetString("knowledge-study-duration", ("seconds",
+                    (int) Math.Ceiling(BookReadingTime.Duration(lesson, knowledge?.Tier ?? 1, intelligence).TotalSeconds))),
                 Disabled = lesson.Spent || lesson.Encrypted,
             };
             learn.OnPressed += _ => send(new StudyBookMessage());
@@ -41,8 +46,10 @@ public sealed class KnowledgePaperControls : BoxContainer
             return;
 
         AddChild(new Label { Text = Loc.GetString("knowledge-translation-heading") });
+        AddChild(new Label { Text = Loc.GetString("knowledge-translation-source") });
         var sources = new OptionButton();
         var sourceIds = new List<NetEntity>();
+        var sourceBooks = new List<LearnableBookComponent>();
         var transform = entities.System<SharedTransformSystem>();
         var userTransform = entities.GetComponent<TransformComponent>(user.Value);
         var query = entities.EntityQueryEnumerator<LearnableBookComponent, TransformComponent>();
@@ -55,8 +62,9 @@ public sealed class KnowledgePaperControls : BoxContainer
                 continue;
             sources.AddItem(entities.GetComponent<MetaDataComponent>(uid).EntityName, sourceIds.Count);
             sourceIds.Add(entities.GetNetEntity(uid));
+            sourceBooks.Add(candidate);
         }
-        sources.OnItemSelected += args => sources.SelectId(args.Id);
+        var sourceLanguage = new Label();
         var languages = new OptionButton();
         var languageIds = new List<string>();
         foreach (var language in speaker.Languages.Keys)
@@ -68,8 +76,24 @@ public sealed class KnowledgePaperControls : BoxContainer
         }
         languages.OnItemSelected += args => languages.SelectId(args.Id);
         var translate = new Button { Text = Loc.GetString("knowledge-translate"), Disabled = sourceIds.Count == 0 || languageIds.Count == 0 };
+        void UpdateSource()
+        {
+            if (sourceBooks.Count == 0)
+                return;
+            var source = sourceBooks[sources.SelectedId];
+            var language = prototypes.TryIndex<LanguagePrototype>(source.Language, out var languagePrototype)
+                ? languagePrototype.LocalizedName : source.Language;
+            sourceLanguage.Text = Loc.GetString("knowledge-translation-source-language", ("language", language));
+            if (prototypes.TryIndex<MedievalKnowledgePrototype>(source.Knowledge, out var entry))
+                translate.Text = Loc.GetString("knowledge-translate-duration", ("seconds",
+                    (int) Math.Ceiling(BookReadingTime.Duration(source, entry.Tier, intelligence, translation: true).TotalSeconds)));
+        }
+        sources.OnItemSelected += args => { sources.SelectId(args.Id); UpdateSource(); };
+        UpdateSource();
         translate.OnPressed += _ => send(new TranslateBookMessage(sourceIds[sources.SelectedId], languageIds[languages.SelectedId]));
         AddChild(sources);
+        AddChild(sourceLanguage);
+        AddChild(new Label { Text = Loc.GetString("knowledge-translation-target-language") });
         AddChild(languages);
         AddChild(translate);
     }

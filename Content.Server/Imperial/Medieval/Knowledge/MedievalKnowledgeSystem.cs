@@ -85,6 +85,9 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         var mirror = EnsureComp<LearnedKnowledgeComponent>(body);
         mirror.Knowledge.Add(prototype.ID);
         Dirty(body, mirror);
+        // Every learned character gets one entry point, including knowledge that only grants passives.
+        if (learned.GrantedActions.Add("ActionBookAbilitiesMenu"))
+            _actionContainer.AddAction(owner, "ActionBookAbilitiesMenu");
         if (prototype.Language is {} language && TryComp<LanguageSpeakerComponent>(body, out var speaker))
         {
             if (!speaker.Languages.TryGetValue(language, out var level) || level < LanguageKnowledge.Speak)
@@ -100,8 +103,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             if (learned.GrantedActions.Add(action.Id))
                 _actionContainer.AddAction(owner, action.Id);
         }
-        if (prototype.Actions.Count > 0)
-            _actions.GrantContainedActions(body, owner);
+        _actions.GrantContainedActions(body, owner);
     }
 
     private void OnInitialKnowledge(Entity<InitialKnowledgeComponent> ent, ref ComponentStartup args)
@@ -119,7 +121,20 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             saved.Knowledge.UnionWith(existing.Knowledge);
             if (existing.GrantedActions.Count > 0)
             {
-                _actions.RemoveProvidedActions(uid, uid);
+                // Only move actions granted by this feature. Body actions include combat and emotes.
+                foreach (var action in _actions.GetActions(uid).ToArray())
+                {
+                    if (action.Comp.Container != uid || MetaData(action).EntityPrototype is not { } prototype ||
+                        !existing.GrantedActions.Contains(prototype.ID))
+                        continue;
+                    if (saved.GrantedActions.Add(prototype.ID))
+                        _actionContainer.TransferAction(action, args.Mind.Owner);
+                    else
+                    {
+                        _actionContainer.RemoveAction((action.Owner, action.Comp));
+                        QueueDel(action);
+                    }
+                }
                 existing.GrantedActions.Clear();
             }
         }
@@ -170,10 +185,19 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
 
     private void OnBookInit(Entity<LearnableBookComponent> ent, ref MapInitEvent args)
     {
-        if (_prototypes.TryIndex<MedievalKnowledgePrototype>(ent.Comp.Knowledge, out var knowledge) && knowledge.Tier >= 4 && ent.Comp.Original)
+        if (_prototypes.TryIndex<MedievalKnowledgePrototype>(ent.Comp.Knowledge, out var knowledge) && ent.Comp.Original)
         {
-            ent.Comp.Encrypted = true;
+            ent.Comp.Encrypted |= knowledge.Tier >= 4;
+            var price = knowledge.Tier switch { 1 => 200, 2 => 400, 3 => 800, _ => 1400 };
+            EnsureComp<CurrencyComponent>(ent).Price["Revent"] = price;
+            EnsureComp<MedievalCurrencyComponent>(ent).Price["Revent"] = price;
             Dirty(ent);
+        }
+        // Retain the authored pages of existing books instead of replacing them with ability help.
+        if (TryComp<PaperComponent>(ent, out var paper) && !string.IsNullOrWhiteSpace(paper.Content))
+        {
+            ent.Comp.Text ??= paper.Content;
+            ent.Comp.Title ??= Name(ent);
         }
         if (!ent.Comp.Original)
         {
@@ -237,7 +261,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         }
         if (book.Comp.Reading != null)
             return false;
-        var args = new DoAfterArgs(EntityManager, user, TimeSpan.FromSeconds(book.Comp.StudySeconds), new StudyBookDoAfterEvent(), book, book)
+        var args = new DoAfterArgs(EntityManager, user, GetReadingDuration(user, book.Comp), new StudyBookDoAfterEvent(), book, book)
         {
             BreakOnDamage = true, BreakOnMove = true, NeedHand = true, DistanceThreshold = 1.5f,
         };
@@ -294,7 +318,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         manuscript.Writer = writer;
         manuscript.Language = language;
         original.TranslationTarget = target;
-        var doAfter = new DoAfterArgs(EntityManager, writer, TimeSpan.FromSeconds(original.TranslationSeconds), new TranslateBookDoAfterEvent(), target, target, source)
+        var doAfter = new DoAfterArgs(EntityManager, writer, GetReadingDuration(writer, original, translation: true), new TranslateBookDoAfterEvent(), target, target, source)
         {
             BreakOnDamage = true, BreakOnMove = true, NeedHand = true, BreakOnHandChange = true, DistanceThreshold = 1.5f,
         };
@@ -331,12 +355,14 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             edition.Language = ent.Comp.Language;
             edition.Original = false;
             edition.StudySeconds = original.StudySeconds;
+            edition.Text = original.Text;
+            edition.Title = original.Title;
             edition.Translator = Name(args.User);
             Dirty(ent, edition);
             RemComp<CurrencyComponent>(ent);
             RemComp<MedievalCurrencyComponent>(ent);
             var knowledge = _prototypes.Index<MedievalKnowledgePrototype>(edition.Knowledge);
-            _metadata.SetEntityName(ent, Loc.GetString("knowledge-translated-title", ("title", Loc.GetString(knowledge.Name))));
+            _metadata.SetEntityName(ent, Loc.GetString("knowledge-translated-title", ("title", original.Title ?? Loc.GetString(knowledge.BookTitle))));
             if (TryComp<ActivatableUIComponent>(ent, out var activatable))
                 activatable.VerbText = "knowledge-read";
             OpenBook(args.User, (ent.Owner, edition));
@@ -350,5 +376,14 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
     {
         if (TryComp<LearnableBookComponent>(ent.Comp.Source, out var original) && original.TranslationTarget == ent.Owner)
             original.TranslationTarget = null;
+    }
+
+    public TimeSpan GetReadingDuration(EntityUid reader, LearnableBookComponent book, bool translation = false)
+    {
+        var tier = _prototypes.Index<MedievalKnowledgePrototype>(book.Knowledge).Tier;
+        var intelligence = TryComp<SkillsComponent>(reader, out var skills)
+            ? skills.Levels.GetValueOrDefault(SharedSkillsSystem.IntelligenceId, 10)
+            : 10;
+        return BookReadingTime.Duration(book, tier, intelligence, translation);
     }
 }

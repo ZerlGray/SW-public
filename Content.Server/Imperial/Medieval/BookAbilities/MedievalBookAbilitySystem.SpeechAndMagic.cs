@@ -1,22 +1,28 @@
 using System.Linq;
 using System.Text;
-using Content.Server.Chat.Managers;
+using Content.Server.Chat.Systems;
 using Content.Server.Examine;
+using Content.Server.Imperial.Medieval.Language;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
 using Content.Shared.Chat;
+using Content.Shared.CCVar;
 using Content.Shared.Examine;
 using Content.Shared.Humanoid;
+using Content.Shared.IdentityManagement;
 using Content.Shared.Imperial.Medieval.BookAbilities;
 using Content.Shared.Imperial.Medieval.Knowledge;
 using Content.Shared.Imperial.Medieval.Language;
 using Content.Shared.Imperial.Medieval.Magic;
 using Content.Shared.Imperial.Medieval.Magic.Mana;
 using Content.Shared.Interaction.Events;
+using Content.Shared.Mind.Components;
 using Content.Shared.Paper;
 using Content.Shared.Verbs;
 using Content.Shared.Tag;
 using Robust.Shared.Map;
+using Robust.Shared.Configuration;
+using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
@@ -46,7 +52,18 @@ public sealed partial class MedievalBookAbilitySystem
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
     [Dependency] private readonly ManaSystem _mana = default!;
     [Dependency] private readonly TagSystem _tags = default!;
-    private readonly Dictionary<EntityUid, (EntityUid Source, TimeSpan Until)> _voices = new();
+    [Dependency] private readonly ChatSystem _voiceChat = default!;
+    [Dependency] private readonly IConfigurationManager _voiceConfig = default!;
+    [Dependency] private readonly LanguageSystem _voiceLanguage = default!;
+
+    private sealed record VoiceRequest(int Id, EntityUid Source, ICommonSession Session, TimeSpan Until)
+    {
+        // Set only during one synchronous call to the regular speech pipeline.
+        public bool Speaking;
+    }
+
+    private readonly Dictionary<EntityUid, VoiceRequest> _voices = new();
+    private int _nextVoiceRequestId;
     private readonly Dictionary<EntityUid, string> _signatures = new();
 
     private void InitializeSpeechAndMagic()
@@ -58,6 +75,8 @@ public sealed partial class MedievalBookAbilitySystem
         SubscribeLocalEvent<BookScrollActionComponent, MedievalFailCastSpellEvent>(OnScrollFailed);
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookReadTracesActionEvent>(OnReadTracesAction);
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookVentriloquismActionEvent>(OnProjectVoiceAction);
+        SubscribeNetworkEvent<BookVoiceSubmittedEvent>(OnVoiceSubmitted);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, MindRemovedMessage>(OnVoiceMindRemoved);
     }
 
     private void OnReadTracesAction(EntityUid uid, LearnedKnowledgeComponent comp, BookReadTracesActionEvent args)
@@ -69,10 +88,66 @@ public sealed partial class MedievalBookAbilitySystem
 
     private void OnProjectVoiceAction(EntityUid uid, LearnedKnowledgeComponent comp, BookVentriloquismActionEvent args)
     {
-        if (args.Handled || !Knows(uid, "BookVentriloquism") || !_examine.InRangeUnOccluded(uid, args.Target, 8f)) return;
-        _voices[uid] = (args.Target, _timing.CurTime + TimeSpan.FromMinutes(2));
+        if (args.Handled || !TryComp<ActorComponent>(uid, out var actor)) return;
+        if (!CanProjectVoice(uid, args.Target))
+        {
+            AbilityError(uid, "book-voice-unavailable");
+            return;
+        }
+
+        var id = ++_nextVoiceRequestId;
+        _voices[uid] = new(id, args.Target, actor.PlayerSession, _timing.CurTime + TimeSpan.FromSeconds(60));
+        RaiseNetworkEvent(new BookVoicePromptEvent(id, Identity.Name(args.Target, EntityManager, uid),
+            _voiceConfig.GetCVar(CCVars.ChatMaxMessageLength)), actor.PlayerSession);
         args.Handled = true;
-        _popup.PopupEntity(Loc.GetString("book-ability-voice-ready"), uid, uid);
+    }
+
+    private void OnVoiceMindRemoved(EntityUid uid, LearnedKnowledgeComponent comp, MindRemovedMessage args)
+    {
+        _voices.Remove(uid);
+    }
+
+    private bool CanProjectVoice(EntityUid user, EntityUid target)
+    {
+        if (!Exists(user) || !Exists(target) || !Knows(user, "BookVentriloquism") ||
+            !_abilityBlocker.CanInteract(user, null) || !_abilityBlocker.CanSpeak(user) ||
+            !_examine.InRangeUnOccluded(user, target, 8f)) return false;
+
+        // A physical voice uses the performer's spoken language, never a target's languages or telepathy.
+        var language = _voiceLanguage.GetCurrentLanguage(user);
+        return language.Vocal && language.LanguageType is Generic && _voiceLanguage.CanSpeak(user, language) &&
+            language.Conditions.Where(condition => !condition.RaiseOnListener)
+                .All(condition => condition.Condition(user, null, EntityManager));
+    }
+
+    private void OnVoiceSubmitted(BookVoiceSubmittedEvent args, EntitySessionEventArgs session)
+    {
+        if (session.SenderSession.AttachedEntity is not { } user ||
+            !TryComp<ActorComponent>(user, out var actor) || actor.PlayerSession != session.SenderSession ||
+            !_voices.TryGetValue(user, out var request) || request.Id != args.RequestId ||
+            request.Session != session.SenderSession || request.Speaking) return;
+
+        // Consume before sending; cancelled, expired and replayed requests cannot be reused.
+        _voices.Remove(user);
+        if (string.IsNullOrWhiteSpace(args.Text)) return;
+        if (request.Until < _timing.CurTime || args.Text.Length > _voiceConfig.GetCVar(CCVars.ChatMaxMessageLength) ||
+            !CanProjectVoice(user, request.Source))
+        {
+            AbilityError(user, "book-voice-expired");
+            return;
+        }
+
+        request.Speaking = true;
+        _voices[user] = request;
+        try
+        {
+            _voiceChat.TrySendInGameICMessage(user, args.Text.Trim(), InGameICChatType.Speak,
+                ChatTransmitRange.Normal, player: session.SenderSession, checkRadioPrefix: false);
+        }
+        finally
+        {
+            _voices.Remove(user);
+        }
     }
 
     public bool CanLipRead(EntityUid listener, EntityUid source, string language)
@@ -84,46 +159,7 @@ public sealed partial class MedievalBookAbilitySystem
 
     public EntityUid VoiceSource(EntityUid speaker)
     {
-        if (!_voices.TryGetValue(speaker, out var voice)) return speaker;
-        if (voice.Until < _timing.CurTime || !Exists(voice.Source) || !Knows(speaker, "BookVentriloquism") ||
-            !_examine.InRangeUnOccluded(speaker, voice.Source, 8f))
-        {
-            _voices.Remove(speaker);
-            return speaker;
-        }
-        return voice.Source;
-    }
-
-    private void AddSpeechAndMagicVerbs(EntityUid uid, GetVerbsEvent<AlternativeVerb> args)
-    {
-        var user = args.User;
-        if (Knows(user, "BookVentriloquism"))
-            Add(args, "book-ability-project-voice", () =>
-            {
-                if (!_examine.InRangeUnOccluded(user, uid, 8f)) return;
-                _voices[user] = (uid, _timing.CurTime + TimeSpan.FromMinutes(2));
-                _popup.PopupEntity(Loc.GetString("book-ability-voice-ready"), user, user);
-            });
-        if (uid == user && Knows(user, "BookMagicTraces"))
-            Add(args, "book-ability-read-traces", () => ReadTraces(user));
-        if (!Knows(user, "BookSpellScribing") || !HasPen(user) || !TryComp<PaperComponent>(uid, out var paper) ||
-            paper.EditingDisabled || !string.IsNullOrWhiteSpace(paper.Content) || HasComp<BookSpellScrollComponent>(uid) ||
-            HasComp<LearnableBookComponent>(uid)) return;
-        foreach (var action in _actions.GetActions(user))
-        {
-            if (MetaData(action).EntityPrototype?.ID is not { } id ||
-                !TryComp<WorldTargetActionComponent>(action, out var target) ||
-                target.Event is not MedievalProjectileSpellEvent || HasComp<BookScrollActionComponent>(action)) continue;
-            var spell = action.Owner;
-            args.Verbs.Add(new AlternativeVerb
-            {
-                Text = Loc.GetString("book-ability-scribe", ("spell", Name(spell))),
-                Act = () => Start(user, uid, "BookSpellScribing", 60,
-                    () => HasPen(user) && !paper.EditingDisabled && string.IsNullOrWhiteSpace(paper.Content) && !HasComp<BookSpellScrollComponent>(uid) &&
-                        _actions.GetActions(user).Any(a => a.Owner == spell) && HasScribingMana(user, spell),
-                    () => Scribe(user, uid, spell, id))
-            });
-        }
+        return _voices.TryGetValue(speaker, out var voice) && voice.Speaking ? voice.Source : speaker;
     }
 
     private bool HasPen(EntityUid user) => _hands.EnumerateHeld(user).Any(item => _tags.HasTag(item, "Write"));
@@ -224,31 +260,4 @@ public sealed partial class MedievalBookAbilitySystem
         _popup.PopupEntity(lines.Length == 0 ? Loc.GetString("book-ability-no-traces") : string.Join("\n", lines), user, user);
     }
 
-    private void Survey(EntityUid user, EntityUid sheet, PaperComponent paper)
-    {
-        var center = _transform.GetWorldPosition(user);
-        var landmarks = _lookup.GetEntitiesInRange(Transform(user).Coordinates, 6f)
-            .Where(e => e != user && Transform(e).Anchored && _examine.InRangeUnOccluded(user, e, 6f))
-            .OrderBy(e => (_transform.GetWorldPosition(e) - center).LengthSquared()).Take(20).ToArray();
-        var grid = new char[13, 13];
-        for (var y = 0; y < 13; y++) for (var x = 0; x < 13; x++) grid[x, y] = '.';
-        grid[6, 6] = '@';
-        var text = new StringBuilder(paper.Content);
-        text.AppendLine().AppendLine(Loc.GetString("book-ability-survey-title", ("x", (int) center.X), ("y", (int) center.Y)));
-        for (var i = 0; i < landmarks.Length; i++)
-        {
-            var offset = _transform.GetWorldPosition(landmarks[i]) - center;
-            var x = Math.Clamp((int) MathF.Round(offset.X) + 6, 0, 12);
-            var y = Math.Clamp(6 - (int) MathF.Round(offset.Y), 0, 12);
-            var letter = (char) ('A' + i);
-            grid[x, y] = letter;
-            text.Append(letter).Append(": ").AppendLine(Name(landmarks[i]));
-        }
-        for (var y = 0; y < 13; y++)
-        {
-            for (var x = 0; x < 13; x++) text.Append(grid[x, y]);
-            text.AppendLine();
-        }
-        if (text.Length <= paper.ContentSize) _paper.SetContent(sheet, text.ToString());
-    }
 }
