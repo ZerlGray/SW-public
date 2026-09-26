@@ -104610,14 +104610,14 @@ entities:
     components:
     - type: Transform
       parent: 4
-    - type: InstantAction
+    - type: Action
       originalIconColor: '#FFFFFFFF'
       container: 4
   - uid: 7
     components:
     - type: Transform
       parent: 6
-    - type: InstantAction
+    - type: Action
       originalIconColor: '#FFFFFFFF'
       container: 6
 - proto: AloeSeeds
