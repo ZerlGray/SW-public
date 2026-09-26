@@ -34,7 +34,7 @@ public sealed partial class MedievalBookAbilitySystem
 
     private void InitializeCombat()
     {
-        SubscribeLocalEvent<LearnedKnowledgeComponent, BookSuccessfulParryEvent>(OnParry);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, MeleeParrySucceededEvent>(OnParry);
         SubscribeLocalEvent<LearnedKnowledgeComponent, ProjectileReflectAttemptEvent>(OnProjectileParry);
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookBreakGuardActionEvent>(OnPrepareGuardBreak);
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookPiercingShotActionEvent>(OnPreparePiercing);
@@ -45,7 +45,7 @@ public sealed partial class MedievalBookAbilitySystem
         SubscribeLocalEvent<BookPiercingProjectileComponent, PreventCollideEvent>(OnPiercingCollision);
     }
 
-    private void OnParry(EntityUid uid, LearnedKnowledgeComponent comp, ref BookSuccessfulParryEvent args)
+    private void OnParry(EntityUid uid, LearnedKnowledgeComponent comp, ref MeleeParrySucceededEvent args)
     {
         if (!Knows(uid, "BookDisarmingRiposte")) return;
         _ripostes[uid] = (args.Attacker, _timing.CurTime + TimeSpan.FromSeconds(2));

@@ -65,8 +65,6 @@ public sealed partial class Generic : ILanguageType
 
     public void Speak(EntityUid uid, string message, string name, SpeechVerbPrototype verb, ChatTransmitRange range, IEntityManager entMan, out bool success, out string resultMessage, Color? colorOverride = null)
     {
-        var abilities = entMan.System<Content.Server.Imperial.Medieval.BookAbilities.MedievalBookAbilitySystem>();
-        var soundSource = abilities.VoiceSource(uid);
         var lang = entMan.System<LanguageSystem>();
         var chat = entMan.System<ChatSystem>();
         var chatMan = IoCManager.Resolve<IChatManager>();
@@ -118,7 +116,13 @@ public sealed partial class Generic : ILanguageType
         success = true;
 
         var langProto = proto.Index(Language);
-        foreach (var (session, data) in chat.GetRecipients(soundSource, ChatSystem.VoiceRange))
+        var sourceEvent = new ResolveLanguageSpeechSourceEvent(uid, langProto, false);
+        entMan.EventBus.RaiseLocalEvent(uid, sourceEvent);
+        var soundSource = sourceEvent.Source;
+        var recipients = new LanguageSpeechRecipientsEvent(uid, soundSource, langProto, false,
+            chat.GetRecipients(soundSource, ChatSystem.VoiceRange));
+        entMan.EventBus.RaiseEvent(EventSource.Local, recipients);
+        foreach (var (session, data) in recipients.Recipients)
         {
             EntityUid listener;
 
@@ -129,8 +133,10 @@ public sealed partial class Generic : ILanguageType
             bool condition = true;
             foreach (var item in langProto.Conditions.Where(x => x.RaiseOnListener))
             {
-                if (!item.Condition(listener, soundSource, entMan) &&
-                    !(item is CanHear && soundSource == uid && abilities.CanLipRead(listener, uid, Language)))
+                var attempt = new LanguageListenerConditionEvent(uid, soundSource, langProto, false, item,
+                    item.Condition(listener, soundSource, entMan));
+                entMan.EventBus.RaiseLocalEvent(listener, attempt);
+                if (!attempt.Allowed)
                     condition = false;
             }
             if (!condition)
@@ -172,8 +178,6 @@ public sealed partial class Generic : ILanguageType
 
     public void Whisper(EntityUid uid, string message, string name, string nameIdentity, ChatTransmitRange range, IEntityManager entMan, out bool success, out string resultMessage, out string resultObfMessage, Color? colorOverride = null)
     {
-        var abilities = entMan.System<Content.Server.Imperial.Medieval.BookAbilities.MedievalBookAbilitySystem>();
-        var soundSource = abilities.VoiceSource(uid);
         var lang = entMan.System<LanguageSystem>();
         var chat = entMan.System<ChatSystem>();
         var examine = entMan.System<ExamineSystem>();
@@ -209,8 +213,13 @@ public sealed partial class Generic : ILanguageType
 
         success = true;
         var langProto = proto.Index(Language);
-
-        foreach (var (session, data) in chat.GetWhisperRecipients(soundSource, ChatSystem.WhisperClearRange, 8f))
+        var sourceEvent = new ResolveLanguageSpeechSourceEvent(uid, langProto, true);
+        entMan.EventBus.RaiseLocalEvent(uid, sourceEvent);
+        var soundSource = sourceEvent.Source;
+        var recipients = new LanguageSpeechRecipientsEvent(uid, soundSource, langProto, true,
+            chat.GetWhisperRecipients(soundSource, ChatSystem.WhisperClearRange, ChatSystem.WhisperMuffledRange));
+        entMan.EventBus.RaiseEvent(EventSource.Local, recipients);
+        foreach (var (session, data) in recipients.Recipients)
         {
             EntityUid listener;
 
@@ -218,16 +227,13 @@ public sealed partial class Generic : ILanguageType
                 continue;
             listener = session.AttachedEntity.Value;
 
-            var lipReading = soundSource == uid && abilities.CanLipRead(listener, uid, Language);
-            // Only visual readers gain the extended range; ordinary whispers still stop at the normal distance.
-            if (!data.Observer && data.Range >= ChatSystem.WhisperMuffledRange && !lipReading)
-                continue;
-
             bool condition = true;
             foreach (var item in langProto.Conditions.Where(x => x.RaiseOnListener))
             {
-                if (!item.Condition(listener, soundSource, entMan) &&
-                    !(item is CanHear && lipReading))
+                var attempt = new LanguageListenerConditionEvent(uid, soundSource, langProto, true, item,
+                    item.Condition(listener, soundSource, entMan));
+                entMan.EventBus.RaiseLocalEvent(listener, attempt);
+                if (!attempt.Allowed)
                     condition = false;
             }
             if (!condition)
@@ -236,7 +242,7 @@ public sealed partial class Generic : ILanguageType
             if (chat.MessageRangeCheck(session, data, range) != ChatSystem.MessageRangeCheckResult.Full)
                 continue; // Won't get logged to chat, and ghosts are too far away to see the pop-up, so we just won't send it to them.
 
-            if (!data.Muffled || lipReading)
+            if (!data.Muffled)
             {
                 var wrappedMessage = Loc.GetString("chat-manager-entity-lang-whisper-wrap-message",
                     ("entityName", Identity.Name(soundSource, entMan, listener, true)),

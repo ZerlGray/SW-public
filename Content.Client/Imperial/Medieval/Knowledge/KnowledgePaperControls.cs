@@ -7,7 +7,7 @@ using Content.Shared.Tag;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Prototypes;
 
-namespace Content.Client.Paper.UI;
+namespace Content.Client.Imperial.Medieval.Knowledge;
 
 /// <summary>Learning and transcription live in the existing book reader/writing editor.</summary>
 public sealed class KnowledgePaperControls : BoxContainer

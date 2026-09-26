@@ -27,6 +27,7 @@ public sealed partial class MedievalBookAbilitySystem
         SubscribeLocalEvent<BookPackedObjectComponent, UseInHandEvent>(OnUnpackInHand);
         SubscribeLocalEvent<BookPackedObjectComponent, ActivateInWorldEvent>(OnUnpackInWorld);
         SubscribeLocalEvent<BookPackedObjectComponent, BookUnpackDoAfterEvent>(OnUnpackFinished);
+        SubscribeLocalEvent<BookPackedObjectComponent, ComponentShutdown>(OnPackedShutdown);
     }
 
     private void OnPackCrateAction(EntityUid uid, LearnedKnowledgeComponent comp, BookPorterActionEvent args)
@@ -46,9 +47,18 @@ public sealed partial class MedievalBookAbilitySystem
     private void OnPackTrapAction(EntityUid uid, LearnedKnowledgeComponent comp, BookTrapDisarmActionEvent args)
     {
         if (args.Handled) return;
-        var target = TryComp<SpikeTrapVisualComponent>(args.Target, out var visual)
-            ? visual.Controller
-            : args.Target;
+        var target = args.Target;
+        if (HasComp<SpikeTrapVisualComponent>(target))
+        {
+            var traps = EntityQueryEnumerator<SpikeTrapComponent>();
+            while (traps.MoveNext(out var controller, out var trap))
+            {
+                if (trap.ActiveTrapEntity != target && trap.DeactiveTrapEntity != target)
+                    continue;
+                target = controller;
+                break;
+            }
+        }
         if (!CanPackTrap(target)) return;
         // The visible spikes are replaced whenever the trap fires. Keep the persistent controller
         // as the work target so an ordinary animation change cannot cancel the disarming attempt.
@@ -102,7 +112,8 @@ public sealed partial class MedievalBookAbilitySystem
         packed.WasAnchored = Transform(target).Anchored;
         packed.WorldRotation = _transform.GetWorldRotation(target);
         packed.Ability = ability;
-        _meta.SetEntityName(bundle, Loc.GetString("book-portable-name", ("name", Name(target))));
+        if (ability != "BookTrapDisarm")
+            _meta.SetEntityName(bundle, Loc.GetString("book-portable-name", ("name", Name(target))));
         var container = _containers.EnsureContainer<ContainerSlot>(bundle, "packed-object");
         if (packed.WasAnchored) _transform.Unanchor(target);
         if (!_containers.Insert(target, container))
@@ -130,20 +141,53 @@ public sealed partial class MedievalBookAbilitySystem
             trap.DeactiveTrapEntity = null;
         }
 
-        // Keep the real weight tree. Zero-weight bridge components let old containers without
-        // weight metadata pass their contents' mass through; no mass is copied onto the wrapper.
-        EnsurePackedWeightTree(target);
+        // Older containers may not carry their contents' mass. Bridge them only while packed,
+        // and remember exactly which components we must remove when the original is restored.
+        EnsurePackedWeightTree(target, packed);
         _packedWeight.Refresh(bundle);
         _hands.TryPickupAnyHand(user, bundle);
     }
 
-    private void EnsurePackedWeightTree(EntityUid target)
+    private void EnsurePackedWeightTree(EntityUid target, BookPackedObjectComponent packed)
     {
         var children = Transform(target).ChildEnumerator;
         while (children.MoveNext(out var child))
-            EnsurePackedWeightTree(child);
-        EnsureComp<RDWeightComponent>(target);
+            EnsurePackedWeightTree(child, packed);
+        if (!HasComp<RDWeightComponent>(target))
+        {
+            AddComp<RDWeightComponent>(target);
+            packed.WeightBridges.Add(target);
+        }
         _packedWeight.Refresh(target);
+    }
+
+    private void RestorePackedWeightTree(EntityUid target, BookPackedObjectComponent packed)
+    {
+        var children = Transform(target).ChildEnumerator;
+        while (children.MoveNext(out var child))
+            RestorePackedWeightTree(child, packed);
+        if (packed.WeightBridges.Remove(target))
+            RemComp<RDWeightComponent>(target);
+        else if (HasComp<RDWeightComponent>(target))
+            _packedWeight.Refresh(target);
+    }
+
+    private void OnPackedShutdown(EntityUid uid, BookPackedObjectComponent packed, ComponentShutdown args)
+    {
+        ClearPackedWeightBridges(packed);
+    }
+
+    private void ClearPackedWeightBridges(BookPackedObjectComponent packed)
+    {
+        foreach (var bridge in packed.WeightBridges)
+        {
+            if (TerminatingOrDeleted(bridge)) continue;
+            RemComp<RDWeightComponent>(bridge);
+            var parent = Transform(bridge).ParentUid;
+            if (!TerminatingOrDeleted(parent) && HasComp<RDWeightComponent>(parent))
+                _packedWeight.Refresh(parent);
+        }
+        packed.WeightBridges.Clear();
     }
 
     private void OnUnpackInHand(EntityUid uid, BookPackedObjectComponent comp, UseInHandEvent args)
@@ -201,7 +245,9 @@ public sealed partial class MedievalBookAbilitySystem
             trap.Ready = false;
             trap.Cooldown = 2f;
         }
-        _packedWeight.Refresh(target);
+        RestorePackedWeightTree(target, packed);
+        // A child may have left the packed object while it was carried.
+        ClearPackedWeightBridges(packed);
         QueueDel(bundle);
     }
 }

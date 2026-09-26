@@ -326,8 +326,8 @@ namespace Content.Shared.MeleeParry
 
             Spawn(parry.ParryEffectSuccess, Transform(uid).Coordinates);
 
-            var learnedParry = new Content.Shared.Imperial.Medieval.BookAbilities.BookSuccessfulParryEvent(attacker);
-            RaiseLocalEvent(uid, ref learnedParry);
+            var parried = new MeleeParrySucceededEvent(attacker);
+            RaiseLocalEvent(uid, ref parried);
 
             return true;
         }

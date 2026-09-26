@@ -40,6 +40,8 @@
   name: dismantled workbench
   description: A dismantled workbench. Its parts and materials make a heavy load. Activate it to assemble.
   components:
+  - type: RDWeight
+    value: 42
   - type: Sprite
     sprite: Objects/Materials/materials.rsi
     state: wood

@@ -2225,12 +2225,6 @@
   - type: Item
     sprite: Imperial/Medieval/Misc/mdvgps.rsi
   - type: HandheldGPS
-  - type: UserInterface
-    interfaces:
-      enum.MedievalMapUIKey.Key:
-        type: MedievalMapBoundUserInterface
-  - type: MedievalMap
-    mapTexturePath: /Textures/Imperial/Medieval/Misc/map_tabletop/tabletopRU.png
 
 - type: entity
   id: MedievalBloodChemistryBottle

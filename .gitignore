@@ -314,6 +314,7 @@ error.glsl
 /Content.IntegrationTests/Tests/Imperial/Medieval/BookAbilities/
 /Content.IntegrationTests/Tests/Imperial/Medieval/Knowledge/BookLearningTest.cs
 /Content.IntegrationTests/Tests/Imperial/Medieval/BookTestServer.cs
+/Content.IntegrationTests/Tests/Imperial/Medieval/Skills/SkillProgressionTest.cs
 /Tools/abilities-playtest.toml
 /docs/notes/book-knowledge-catalog.md
 /docs/notes/book-learning-implementation-design.md

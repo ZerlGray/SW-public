@@ -6,8 +6,6 @@
   description: MedievalStoneWorkerPlace
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -85,8 +83,6 @@
   description: MedievalStoneWizardPlace
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -156,8 +152,6 @@
   description: MedievalWizardPlace
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -231,8 +225,6 @@
   noSpawn: true
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -310,8 +302,6 @@
   description: MedievalWizardGrass
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -397,8 +387,6 @@
   description: MedievalKeybench
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -476,8 +464,6 @@
   description: From BlenderTech. Will It Blend? Let's find out!
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Transform
@@ -544,8 +530,6 @@
     mode: SnapgridCenter
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -631,8 +615,6 @@
   description: It's fire.
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Microwave
@@ -707,8 +689,6 @@
   description: It produces aroows and range weapon using steel leather and wood.
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -781,8 +761,6 @@
   abstract: true
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: ActivatableUI
     key: enum.CP14WorkbenchUiKey.Key
   - type: Climbable
@@ -805,8 +783,6 @@
   id: MedievalMeltingPlace
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: Climbable
   - type: Clickable
   - type: TrashDefendArea

@@ -8,7 +8,8 @@ namespace Content.Shared.Imperial.Medieval.Knowledge;
 public sealed partial class LearnedKnowledgeComponent : Component
 {
     [DataField, AutoNetworkedField] public HashSet<string> Knowledge = new();
-    public HashSet<string> GrantedActions = new();
+    // Owned by the mind (or a body before it receives a mind); action entities stay in the current body.
+    public Dictionary<string, EntityUid> GrantedActions = new();
     public Dictionary<string, LanguageKnowledge?> OriginalLanguages = new();
 }
 

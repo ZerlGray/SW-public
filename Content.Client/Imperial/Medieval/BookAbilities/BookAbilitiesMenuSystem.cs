@@ -31,11 +31,17 @@ public sealed class BookAbilitiesMenuSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        SubscribeLocalEvent<BookAbilityActionComponent, ActionAutoPopulateAttemptEvent>(OnAutoPopulate);
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookOpenAbilitiesMenuEvent>(OnOpenMenu);
         SubscribeLocalEvent<LearnedKnowledgeComponent, AfterAutoHandleStateEvent>(OnKnowledgeState);
         SubscribeLocalEvent<LearnedKnowledgeComponent, LocalPlayerDetachedEvent>(OnDetached);
         SubscribeNetworkEvent<BookAbilityChoicesEvent>(OnChoices);
         _actions.ActionsUpdated += QueueRefresh;
+    }
+
+    private void OnAutoPopulate(EntityUid uid, BookAbilityActionComponent component, ActionAutoPopulateAttemptEvent args)
+    {
+        args.Cancel();
     }
 
     public override void Shutdown()

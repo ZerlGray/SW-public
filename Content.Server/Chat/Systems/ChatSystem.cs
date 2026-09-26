@@ -483,7 +483,6 @@ public sealed partial class ChatSystem : SharedChatSystem
         if (language.LanguageType.RaiseEvent)
         {
             var ev = new EntitySpokeEvent(source, resultMessage, language, null, null, checkNrp: checkNrp);  // imperial medieval message => resultMessage
-            ev.SoundSource = EntityManager.System<Content.Server.Imperial.Medieval.BookAbilities.MedievalBookAbilitySystem>().VoiceSource(source);
             RaiseLocalEvent(source, ev, true);
         }
         // imperial medieval Languages end
@@ -580,7 +579,6 @@ public sealed partial class ChatSystem : SharedChatSystem
         if (language.LanguageType.RaiseEvent)   // imperial medieval languages
         {
             var ev = new EntitySpokeEvent(source, resultMessage, language, channel, resultObfMessage, true);
-            ev.SoundSource = EntityManager.System<Content.Server.Imperial.Medieval.BookAbilities.MedievalBookAbilitySystem>().VoiceSource(source);
             RaiseLocalEvent(source, ev, true);
         }
 

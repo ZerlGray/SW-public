@@ -3,6 +3,7 @@ using System.Text;
 using Content.Server.Chat.Systems;
 using Content.Server.Examine;
 using Content.Server.Imperial.Medieval.Language;
+using Content.Server.Speech;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
 using Content.Shared.Chat;
@@ -77,6 +78,54 @@ public sealed partial class MedievalBookAbilitySystem
         SubscribeLocalEvent<LearnedKnowledgeComponent, BookVentriloquismActionEvent>(OnProjectVoiceAction);
         SubscribeNetworkEvent<BookVoiceSubmittedEvent>(OnVoiceSubmitted);
         SubscribeLocalEvent<LearnedKnowledgeComponent, MindRemovedMessage>(OnVoiceMindRemoved);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, ResolveLanguageSpeechSourceEvent>(OnVoiceSource);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, EntitySpokeEvent>(OnVoiceSpoken, before: [typeof(SpeechSoundSystem)]);
+        SubscribeLocalEvent<LanguageSpeechRecipientsEvent>(OnVisualSpeechRecipients);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, LanguageListenerConditionEvent>(OnVisualSpeechCondition);
+    }
+
+    private void OnVoiceSource(EntityUid uid, LearnedKnowledgeComponent comp, ResolveLanguageSpeechSourceEvent args)
+    {
+        if (VoiceSource(uid) is var source && source != uid)
+            args.Source = source;
+    }
+
+    private void OnVoiceSpoken(EntityUid uid, LearnedKnowledgeComponent comp, EntitySpokeEvent args)
+    {
+        if (VoiceSource(uid) is var source && source != uid)
+            args.SoundSource = source;
+    }
+
+    private void OnVisualSpeechRecipients(LanguageSpeechRecipientsEvent args)
+    {
+        // Normal recipients, including remote listeners supplied by other systems, stay intact.
+        if (!args.Whisper || args.Source != args.Speaker)
+            return;
+
+        var query = EntityQueryEnumerator<ActorComponent, LearnedKnowledgeComponent>();
+        while (query.MoveNext(out var listener, out var actor, out _))
+        {
+            if (!CanLipRead(listener, args.Speaker, args.Language.ID))
+                continue;
+
+            var session = actor.PlayerSession;
+            if (args.Recipients.TryGetValue(session, out var existing))
+            {
+                args.Recipients[session] = existing with { Muffled = false };
+                continue;
+            }
+
+            var distance = (_transform.GetMapCoordinates(listener).Position -
+                            _transform.GetMapCoordinates(args.Source).Position).Length();
+            args.Recipients.Add(session, new ChatSystem.ICChatRecipientData(distance, false));
+        }
+    }
+
+    private void OnVisualSpeechCondition(EntityUid uid, LearnedKnowledgeComponent comp, LanguageListenerConditionEvent args)
+    {
+        if (!args.Allowed && args.Condition is CanHear && args.Source == args.Speaker &&
+            CanLipRead(uid, args.Speaker, args.Language.ID))
+            args.Allowed = true;
     }
 
     private void OnReadTracesAction(EntityUid uid, LearnedKnowledgeComponent comp, BookReadTracesActionEvent args)

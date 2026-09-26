@@ -45,6 +45,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         SubscribeLocalEvent<InitialKnowledgeComponent, ComponentStartup>(OnInitialKnowledge);
         SubscribeLocalEvent<MindContainerComponent, MindAddedMessage>(OnMindAdded);
         SubscribeLocalEvent<MindContainerComponent, MindRemovedMessage>(OnMindRemoved);
+        SubscribeLocalEvent<LearnedKnowledgeComponent, ComponentShutdown>(OnKnowledgeShutdown);
         SubscribeLocalEvent<LearnableBookComponent, MapInitEvent>(OnBookInit, after: [typeof(PaperSystem)]);
         SubscribeLocalEvent<LearnableBookComponent, BeforeActivatableUIOpenEvent>(OnBookOpened, after: [typeof(PaperSystem)]);
         SubscribeLocalEvent<LearnableBookComponent, GetVerbsEvent<AlternativeVerb>>(OnBookVerbs);
@@ -73,11 +74,11 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             return false;
 
         Dirty(owner, learned);
-        ApplyKnowledge(user, owner, learned, prototype);
+        ApplyKnowledge(user, learned, prototype);
         return true;
     }
 
-    private void ApplyKnowledge(EntityUid body, EntityUid owner, LearnedKnowledgeComponent learned, MedievalKnowledgePrototype prototype)
+    private void ApplyKnowledge(EntityUid body, LearnedKnowledgeComponent learned, MedievalKnowledgePrototype prototype)
     {
         if (HasComp<GhostComponent>(body))
             return;
@@ -86,8 +87,7 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         mirror.Knowledge.Add(prototype.ID);
         Dirty(body, mirror);
         // Every learned character gets one entry point, including knowledge that only grants passives.
-        if (learned.GrantedActions.Add("ActionBookAbilitiesMenu"))
-            _actionContainer.AddAction(owner, "ActionBookAbilitiesMenu");
+        EnsureBookAction(body, learned, "ActionBookAbilitiesMenu");
         if (prototype.Language is {} language && TryComp<LanguageSpeakerComponent>(body, out var speaker))
         {
             if (!speaker.Languages.TryGetValue(language, out var level) || level < LanguageKnowledge.Speak)
@@ -100,10 +100,34 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
 
         foreach (var action in prototype.Actions)
         {
-            if (learned.GrantedActions.Add(action.Id))
-                _actionContainer.AddAction(owner, action.Id);
+            EnsureBookAction(body, learned, action.Id);
         }
-        _actions.GrantContainedActions(body, owner);
+    }
+
+    private void EnsureBookAction(EntityUid body, LearnedKnowledgeComponent learned, string prototype)
+    {
+        if (learned.GrantedActions.TryGetValue(prototype, out var actionId) &&
+            !TerminatingOrDeleted(actionId) &&
+            _actions.GetAction(actionId, false) is { } action)
+        {
+            if (action.Comp.Container == body && action.Comp.AttachedEntity == body)
+                return;
+
+            // Reuse the same action across bodies, including its cooldown and other state.
+            var cooldown = action.Comp.Cooldown;
+            if (action.Comp.Container != body && !_actionContainer.AddAction(body, actionId, action.Comp))
+                return;
+            _actions.AddActionDirect(body, actionId);
+            if (cooldown != null)
+                _actions.SetCooldown(actionId, cooldown.Value.Start, cooldown.Value.End);
+            else
+                _actions.RemoveCooldown(actionId);
+            return;
+        }
+
+        EntityUid? created = null;
+        if (_actions.AddAction(body, ref created, prototype))
+            learned.GrantedActions[prototype] = created.Value;
     }
 
     private void OnInitialKnowledge(Entity<InitialKnowledgeComponent> ent, ref ComponentStartup args)
@@ -119,37 +143,40 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
         if (TryComp<LearnedKnowledgeComponent>(uid, out var existing))
         {
             saved.Knowledge.UnionWith(existing.Knowledge);
-            if (existing.GrantedActions.Count > 0)
+            foreach (var (prototype, action) in existing.GrantedActions)
             {
-                // Only move actions granted by this feature. Body actions include combat and emotes.
-                foreach (var action in _actions.GetActions(uid).ToArray())
+                if (saved.GrantedActions.TryGetValue(prototype, out var savedAction) && Exists(savedAction))
                 {
-                    if (action.Comp.Container != uid || MetaData(action).EntityPrototype is not { } prototype ||
-                        !existing.GrantedActions.Contains(prototype.ID))
-                        continue;
-                    if (saved.GrantedActions.Add(prototype.ID))
-                        _actionContainer.TransferAction(action, args.Mind.Owner);
-                    else
+                    if (savedAction != action && Exists(action))
                     {
-                        _actionContainer.RemoveAction((action.Owner, action.Comp));
+                        _actionContainer.RemoveAction(action);
                         QueueDel(action);
                     }
                 }
-                existing.GrantedActions.Clear();
+                else if (Exists(action))
+                    saved.GrantedActions[prototype] = action;
             }
+            existing.GrantedActions.Clear();
         }
         foreach (var id in saved.Knowledge.ToArray())
         {
             if (_prototypes.TryIndex<MedievalKnowledgePrototype>(id, out var prototype))
-                ApplyKnowledge(uid, args.Mind.Owner, saved, prototype);
+                ApplyKnowledge(uid, saved, prototype);
         }
         Dirty(args.Mind.Owner, saved);
     }
 
     private void OnMindRemoved(EntityUid uid, MindContainerComponent comp, MindRemovedMessage args)
     {
-        // The body may not own an ActionContainer; remove its mind-provided actions explicitly.
-        _actions.RemoveProvidedActions(uid, args.Mind.Owner);
+        if (TryComp<LearnedKnowledgeComponent>(args.Mind.Owner, out var learned))
+        {
+            // Park only this feature's actions until the mind receives another body.
+            foreach (var actionId in learned.GrantedActions.Values)
+            {
+                if (_actions.GetAction(actionId, false) is { } action && action.Comp.Container == uid)
+                    _actionContainer.RemoveAction(actionId);
+            }
+        }
         if (TryComp<LearnedKnowledgeComponent>(uid, out var mirror))
         {
             if (TryComp<LanguageSpeakerComponent>(uid, out var speaker))
@@ -169,6 +196,18 @@ public sealed partial class MedievalKnowledgeSystem : EntitySystem
             mirror.Knowledge.Clear();
             Dirty(uid, mirror);
         }
+    }
+
+    private void OnKnowledgeShutdown(EntityUid uid, LearnedKnowledgeComponent learned, ComponentShutdown args)
+    {
+        foreach (var actionId in learned.GrantedActions.Values)
+        {
+            if (TerminatingOrDeleted(actionId))
+                continue;
+            _actionContainer.RemoveAction(actionId);
+            QueueDel(actionId);
+        }
+        learned.GrantedActions.Clear();
     }
 
     /// <summary>Deliberately excludes translator implants, ghosts and Universal fallback.</summary>

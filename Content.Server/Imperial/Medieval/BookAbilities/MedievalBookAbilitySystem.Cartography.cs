@@ -1,15 +1,15 @@
 using System.Linq;
-using Content.Server.Imperial.Medieval.MedievalMap;
+using Content.Server.Imperial.Medieval.SurveyMap;
 using Content.Shared.Imperial.Medieval.BookAbilities;
 using Content.Shared.Imperial.Medieval.Knowledge;
-using Content.Shared.Imperial.Medieval.MedievalMap;
+using Content.Shared.Imperial.Medieval.SurveyMap;
 using Content.Shared.Paper;
 
 namespace Content.Server.Imperial.Medieval.BookAbilities;
 
 public sealed partial class MedievalBookAbilitySystem
 {
-    [Dependency] private readonly MedievalMapSystem _fieldMaps = default!;
+    [Dependency] private readonly MedievalSurveyMapSystem _fieldMaps = default!;
 
     private void InitializeCartography()
     {
@@ -22,8 +22,8 @@ public sealed partial class MedievalBookAbilitySystem
             return;
 
         var map = _hands.EnumerateHeld(uid).FirstOrDefault(item =>
-            HasComp<MedievalMapComponent>(item) || HasComp<PaperComponent>(item));
-        if (TryComp<MedievalMapComponent>(map, out var fieldMap) && fieldMap.IsSurveyMap &&
+            HasComp<MedievalSurveyMapComponent>(item) || HasComp<PaperComponent>(item));
+        if (TryComp<MedievalSurveyMapComponent>(map, out var fieldMap) &&
             fieldMap.SurveyedMap != Transform(uid).MapUid)
         {
             _popup.PopupEntity(Loc.GetString("book-cartography-wrong-region"), uid, uid);

@@ -26,10 +26,6 @@ public sealed partial class BookCompanionOrderEvent : InstantActionEvent
 }
 public sealed partial class BookCompanionAttackEvent : EntityTargetActionEvent;
 
-/// <summary>Raised on the defender after a real successful melee parry.</summary>
-[ByRefEvent]
-public record struct BookSuccessfulParryEvent(EntityUid Attacker);
-
 /// <summary>One deliberately prepared die result; the throw still looks like an ordinary roll.</summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class BookLoadedDiceComponent : Component
@@ -47,6 +43,7 @@ public sealed partial class BookBrokenGuardComponent : Component
 [RegisterComponent]
 public sealed partial class BookPackedObjectComponent : Component
 {
+    [DataField] public HashSet<EntityUid> WeightBridges = new();
     [DataField] public bool WasAnchored;
     [DataField] public Angle WorldRotation;
     [DataField] public string Ability = string.Empty;

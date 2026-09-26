@@ -133,8 +133,6 @@ public sealed partial class StoreSystem : EntitySystem
     /// </summary>
     public bool TryAddCurrency(Entity<CurrencyComponent?> currency, Entity<StoreComponent?> store)
     {
-        if (TryComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(currency.Owner, out var book) && !book.Original)
-            return false;
         if (!Resolve(currency.Owner, ref currency.Comp))
             return false;
 

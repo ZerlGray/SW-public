@@ -45,8 +45,6 @@
   description: It produces sheets and ingots using ores.
   components:
   - type: BookPackableWorkbench
-  - type: RDWeight
-    value: 40
   - type: Sprite
     sprite: /Textures/Imperial/Medieval/EventContent/Scarlatto/autolathe.rsi
     layers:

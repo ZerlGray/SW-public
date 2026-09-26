@@ -35,14 +35,9 @@ public sealed class ActionContainerSystem : EntitySystem
         SubscribeLocalEvent<ActionsContainerComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<ActionsContainerComponent, EntRemovedFromContainerMessage>(OnEntityRemoved);
         SubscribeLocalEvent<ActionsContainerComponent, EntInsertedIntoContainerMessage>(OnEntityInserted);
-        // Mind-owned actions are granted by the server and replicated through ActionsComponent.
-        // Client container state can arrive before ComponentInit, so it must not re-grant them.
-        if (_netMan.IsServer)
-        {
-            SubscribeLocalEvent<ActionsContainerComponent, ActionAddedEvent>(OnActionAdded);
-            SubscribeLocalEvent<ActionsContainerComponent, MindAddedMessage>(OnMindAdded);
-            SubscribeLocalEvent<ActionsContainerComponent, MindRemovedMessage>(OnMindRemoved);
-        }
+        SubscribeLocalEvent<ActionsContainerComponent, ActionAddedEvent>(OnActionAdded);
+        SubscribeLocalEvent<ActionsContainerComponent, MindAddedMessage>(OnMindAdded);
+        SubscribeLocalEvent<ActionsContainerComponent, MindRemovedMessage>(OnMindRemoved);
     }
 
     private void OnMindAdded(EntityUid uid, ActionsContainerComponent component, MindAddedMessage args)

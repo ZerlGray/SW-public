@@ -707,8 +707,10 @@ public sealed partial class TradingSystem
                           HasComp<MedievalMeleeResourceComponent>(item) ||
                           HasComp<MedievalArmorIntegrityComponent>(item);
         var isDamagedEquipment = !forceIntactEquipment && IsDamagedEquipment(item);
+        var identity = new TradingItemIdentityEvent();
+        RaiseLocalEvent(item, identity);
         var matchesCommon = !isRecipe &&
-                            !HasComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(item) &&
+                            !identity.ForceUnique &&
                             !isCanvas &&
                             !hasStoredSolution &&
                             !hasCurrencyValue &&
@@ -724,7 +726,7 @@ public sealed partial class TradingSystem
             return true;
         }
 
-        var signature = BuildItemSignature(item, product, stackCount, isEquipment, isDamagedEquipment);
+        var signature = BuildItemSignature(item, product, stackCount, isEquipment, isDamagedEquipment, identity.Parts);
         var existing = market.Comp.Commodities.Values.FirstOrDefault(value =>
             !value.Permanent && value.Signature == signature);
         if (existing != null)
@@ -787,13 +789,16 @@ public sealed partial class TradingSystem
         EntProtoId product,
         int stackCount,
         bool isEquipment,
-        bool isDamagedEquipment)
+        bool isDamagedEquipment,
+        List<string> identityParts)
     {
         var values = new List<string>
         {
             product.Id,
             stackCount.ToString(CultureInfo.InvariantCulture),
         };
+        // Item-specific identity also applies to equipment (for example, books usable as melee weapons).
+        values.AddRange(identityParts);
 
         if (isEquipment)
         {
@@ -807,15 +812,6 @@ public sealed partial class TradingSystem
         var metadata = MetaData(item);
         values.Add(metadata.EntityName);
         values.Add(metadata.EntityDescription);
-
-        if (TryComp<Content.Shared.Imperial.Medieval.Knowledge.LearnableBookComponent>(item, out var book))
-        {
-            values.Add(book.Knowledge);
-            values.Add(book.Language);
-            values.Add(book.Original.ToString());
-            values.Add(book.Encrypted.ToString());
-            values.Add(book.Spent.ToString());
-        }
 
         return string.Join('\u001f', values);
     }

@@ -13,7 +13,6 @@ using Content.Client.UserInterface.Systems.Actions.Windows;
 using Content.Client.UserInterface.Systems.Gameplay;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
-using Content.Shared.Imperial.Medieval.BookAbilities;
 using Content.Shared.Charges.Systems;
 using Content.Shared.Input;
 using Robust.Client.GameObjects;
@@ -304,7 +303,9 @@ public sealed class ActionUIController : UIController, IOnStateChanged<GameplayS
         if (action.Comp.Toggled && EntityManager.TryGetComponent<TargetActionComponent>(actionId, out var target))
             StartTargeting((action, action, target));
 
-        if (EntityManager.HasComponent<BookAbilityActionComponent>(action) || _actions.Contains(action))
+        var attempt = new ActionAutoPopulateAttemptEvent();
+        EntityManager.EventBus.RaiseLocalEvent(action.Owner, attempt);
+        if (attempt.Cancelled || _actions.Contains(action))
             return;
 
         _actions.Add(action);
@@ -891,8 +892,7 @@ public sealed class ActionUIController : UIController, IOnStateChanged<GameplayS
         var range = target.CheckCanAccess ? target.Range : -1;
 
         _interactionOutline?.SetEnabled(false);
-        _targetOutline?.Enable(range, target.CheckCanAccess, predicate, entity.Whitelist, entity.Blacklist, null,
-            hoveredOnly: EntityManager.HasComponent<BookAbilityActionComponent>(uid));
+        _targetOutline?.Enable(range, target.CheckCanAccess, predicate, entity.Whitelist, entity.Blacklist, null);
     }
 
     /// <summary>
