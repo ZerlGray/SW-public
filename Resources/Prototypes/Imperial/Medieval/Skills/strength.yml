@@ -5,18 +5,18 @@
   rsiPath: /Textures/Imperial/Medieval/Interface/Skills/strength.rsi
   icons:
     1: worst
-    5: bad
+    4: bad
     8: ok
-    15: good
+    12: good
+    16: good
     20: best
   modifiers:
-    FistPositiveDamageModifier: 0.06
-    FistNegativeDamageModifier: -0.03
-    WeaponPositiveDamageModifier: 0.01
-    WeaponNegativeDamageModifier: -0.02
-    PositiveUncuffDurationModifier: -0.2
-    NegativeUncuffDurationModifier: 0.2
-    FistMaxDamageModifier: 0.2
-    WeaponMaxDamageModifier: 0.07
-    PositiveGateInteractionTimeModifier: -0.07
-    NegativeGateInteractionTimeModifier: 0.1
+    FistDamagePerLevel: 0.04
+    WeaponDamagePerLevel: 0.02
+    ForceSpeedPerLevel: 0.03
+    StructuralDamageMultiplier: 1.35
+    KnockbackDistance: 0.12
+    HeavyHitBonus: 0.5
+    HeavyHitCooldown: 60
+    LargeThrowMultiplier: 3
+    PersonPickupDelay: 0.5
