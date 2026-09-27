@@ -66,6 +66,11 @@ public sealed partial class CP14WorkbenchSystem : SharedCP14WorkbenchSystem
         if (args.Cancelled || args.Handled)
             return;
 
+        var attempt = new Content.Shared.Construction.CraftingAttemptEvent(ent.Owner);
+        RaiseLocalEvent(args.User, ref attempt);
+        if (attempt.Cancelled)
+            return;
+
         if (!_proto.TryIndex(args.Recipe, out var recipe))
             return;
 
