@@ -1,4 +1,5 @@
 using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 namespace Content.Shared.Imperial.Medieval.Knowledge;
 
@@ -13,6 +14,7 @@ public sealed partial class MedievalKnowledgePrototype : IPrototype
     [DataField(required: true)] public LocId BookText = string.Empty;
     [DataField(required: true)] public EntProtoId OriginalBook;
     [DataField] public int Tier = 1;
+    [DataField] public SpriteSpecifier? Icon;
     [DataField] public string? Language;
     [DataField] public List<EntProtoId> Actions = new();
 }

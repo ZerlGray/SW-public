@@ -6,6 +6,9 @@
   name: book-knowledge-dice-cheat-name
   description: book-knowledge-dice-cheat-desc
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: dice_cheat
   actions: [ActionBookDiceCheat]
 
 - type: medievalKnowledge
@@ -16,6 +19,9 @@
   name: book-knowledge-lip-reading-name
   description: book-knowledge-lip-reading-desc
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: lip_reading
 
 - type: medievalKnowledge
   id: BookPorter
@@ -25,6 +31,9 @@
   name: book-knowledge-porter-name
   description: book-knowledge-porter-desc
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: porter
   actions: [ActionBookPorter]
 
 - type: medievalKnowledge
@@ -35,6 +44,9 @@
   name: book-knowledge-trap-disarm-name
   description: book-knowledge-trap-disarm-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: trap_disarm
   actions: [ActionBookTrapDisarm]
 
 - type: medievalKnowledge
@@ -45,6 +57,9 @@
   name: book-knowledge-extract-reagent-name
   description: book-knowledge-extract-reagent-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: extract_reagent
   actions: [ActionBookExtractReagent]
 
 - type: medievalKnowledge
@@ -55,6 +70,9 @@
   name: book-knowledge-pack-workbench-name
   description: book-knowledge-pack-workbench-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: pack_workbench
   actions: [ActionBookPackWorkbench]
 
 - type: medievalKnowledge
@@ -65,6 +83,9 @@
   name: book-knowledge-escape-bonds-name
   description: book-knowledge-escape-bonds-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: escape_bonds
   actions: [ActionBookEscapeBonds]
 
 - type: medievalKnowledge
@@ -75,6 +96,9 @@
   name: book-knowledge-transplant-name
   description: book-knowledge-transplant-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: transplant
   actions: [ActionBookTransplant]
 
 - type: medievalKnowledge
@@ -85,6 +109,9 @@
   name: book-knowledge-cartography-name
   description: book-knowledge-cartography-desc
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: cartography
   actions: [ActionBookSurvey]
 
 - type: medievalKnowledge
@@ -95,6 +122,9 @@
   name: book-knowledge-taming-name
   description: book-knowledge-taming-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: taming
   actions: [ActionBookTaming]
 
 - type: medievalKnowledge
@@ -105,6 +135,9 @@
   name: book-knowledge-magic-traces-name
   description: book-knowledge-magic-traces-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: magic_traces
   actions: [ActionBookReadTraces]
 
 - type: medievalKnowledge
@@ -115,6 +148,9 @@
   name: book-knowledge-ventriloquism-name
   description: book-knowledge-ventriloquism-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: ventriloquism
   actions: [ActionBookVentriloquism]
 
 - type: medievalKnowledge
@@ -125,6 +161,9 @@
   name: book-knowledge-disarming-riposte-name
   description: book-knowledge-disarming-riposte-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: disarming_riposte
 
 - type: medievalKnowledge
   id: BookBreakGuard
@@ -134,6 +173,9 @@
   name: book-knowledge-break-guard-name
   description: book-knowledge-break-guard-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: break_guard
   actions: [ActionBookBreakGuard]
 
 - type: medievalKnowledge
@@ -144,6 +186,9 @@
   name: book-knowledge-parry-projectile-name
   description: book-knowledge-parry-projectile-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: parry_projectile
 
 - type: medievalKnowledge
   id: BookMobileBlock
@@ -153,6 +198,9 @@
   name: book-knowledge-mobile-block-name
   description: book-knowledge-mobile-block-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: mobile_block
 
 - type: medievalKnowledge
   id: BookPiercingShot
@@ -162,6 +210,9 @@
   name: book-knowledge-piercing-shot-name
   description: book-knowledge-piercing-shot-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: piercing_shot
   actions: [ActionBookPiercingShot]
 
 - type: medievalKnowledge
@@ -172,6 +223,9 @@
   name: book-knowledge-escape-grab-name
   description: book-knowledge-escape-grab-desc
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: escape_grab
   actions: [ActionBookEscapeGrab]
 
 - type: medievalKnowledge
@@ -182,6 +236,9 @@
   name: book-knowledge-spell-scribing-name
   description: book-knowledge-spell-scribing-desc
   tier: 4
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: spell_scribing
   actions: [ActionBookSpellScribing]
 
 - type: entity
@@ -195,8 +252,8 @@
     checkCanInteract: false
     checkConsciousness: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: menu
   - type: InstantAction
     event: !type:BookOpenAbilitiesMenuEvent
 
@@ -210,8 +267,8 @@
     autoPopulate: false
     raiseOnUser: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: dice_cheat
   - type: InstantAction
     event: !type:BookDiceCheatActionEvent
 
@@ -225,8 +282,8 @@
     autoPopulate: false
     raiseOnUser: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: extract_reagent
   - type: InstantAction
     event: !type:BookExtractReagentActionEvent
 
@@ -239,8 +296,8 @@
     autoPopulate: false
     raiseOnUser: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: menu
   - type: TargetAction
     range: 2
     repeat: false
@@ -254,6 +311,10 @@
   name: Укладка дорожного груза
   description: Выберите переносной ящик, чтобы превратить его в тяжёлую поклажу. Разверните её кликом.
   components:
+  - type: Action
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: porter
   - type: EntityTargetAction
     event: !type:BookPorterActionEvent
 
@@ -263,6 +324,10 @@
   name: Мастерская в дороге
   description: Выберите станок, чтобы упаковать его для перевозки. Разверните поклажу кликом.
   components:
+  - type: Action
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: pack_workbench
   - type: EntityTargetAction
     whitelist:
       components:
@@ -275,6 +340,10 @@
   name: Механизмы древних руин
   description: Выберите ловушку, чтобы обезвредить и упаковать её. Разверните поклажу кликом для установки.
   components:
+  - type: Action
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: trap_disarm
   - type: EntityTargetAction
     whitelist:
       components:
@@ -287,6 +356,10 @@
   name: Живые корни
   description: Выберите грядку с растением, чтобы выкопать его для пересадки. Разверните кликом.
   components:
+  - type: Action
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: transplant
   - type: EntityTargetAction
     event: !type:BookTransplantActionEvent
 
@@ -298,6 +371,9 @@
   components:
   - type: Action
     useDelay: 60
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: taming
   - type: TargetAction
     range: 6
   - type: EntityTargetAction
@@ -314,8 +390,8 @@
     raiseOnUser: true
     checkCanInteract: false
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: cancel_taming
   - type: InstantAction
     event: !type:BookCancelTamingActionEvent
 
@@ -325,6 +401,10 @@
   name: Пойманное заклинание
   description: Держите перо и выберите чистую бумагу, затем выберите заклинание для записи.
   components:
+  - type: Action
+    icon:
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: spell_scribing
   - type: EntityTargetAction
     event: !type:BookSpellScribingActionEvent
 
@@ -339,8 +419,8 @@
     useDelay: 2
     checkCanInteract: false
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: escape_bonds
   - type: InstantAction
     event: !type:BookEscapeBondsActionEvent
 
@@ -355,8 +435,8 @@
     useDelay: 30
     checkCanInteract: false
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: escape_grab
   - type: InstantAction
     event: !type:BookEscapeGrabActionEvent
 
@@ -371,8 +451,8 @@
     useDelay: 20
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: break_guard
   - type: InstantAction
     event: !type:BookBreakGuardActionEvent
 
@@ -387,8 +467,8 @@
     useDelay: 20
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: piercing_shot
   - type: InstantAction
     event: !type:BookPiercingShotActionEvent
 
@@ -404,8 +484,8 @@
     useDelay: 10
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: cartography
   - type: InstantAction
     event: !type:BookSurveyActionEvent
 
@@ -420,8 +500,8 @@
     useDelay: 1
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: companion_follow
   - type: InstantAction
     event: !type:BookCompanionOrderEvent
       order: follow
@@ -437,8 +517,8 @@
     useDelay: 1
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: companion_stay
   - type: InstantAction
     event: !type:BookCompanionOrderEvent
       order: stay
@@ -455,8 +535,8 @@
     useDelay: 1
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: companion_guard
   - type: TargetAction
     range: 12
   - type: EntityTargetAction
@@ -477,8 +557,8 @@
     useDelay: 1
     checkCanInteract: true
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: companion_retreat
   - type: InstantAction
     event: !type:BookCompanionOrderEvent
       order: retreat
@@ -493,8 +573,8 @@
     raiseOnUser: true
     useDelay: 1
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: companion_attack
   - type: TargetAction
     range: 12
     checkCanAccess: false
@@ -511,8 +591,8 @@
     raiseOnUser: true
     useDelay: 3
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: magic_traces
   - type: InstantAction
     event: !type:BookReadTracesActionEvent
 
@@ -527,8 +607,8 @@
     raiseOnUser: true
     useDelay: 2
     icon:
-      sprite: Objects/Misc/books.rsi
-      state: icon_text
+      sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+      state: ventriloquism
   - type: TargetAction
     range: 8
     checkCanAccess: false

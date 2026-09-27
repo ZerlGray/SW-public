@@ -22,6 +22,9 @@
   name: knowledge-decipherer-name
   description: knowledge-decipherer-description
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: decipherer
 
 - type: medievalKnowledge
   id: BookLanguageCommon
@@ -32,6 +35,9 @@
   description: knowledge-language-description
   language: Common
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_common
 
 - type: medievalKnowledge
   id: BookLanguageElf
@@ -42,6 +48,9 @@
   description: knowledge-language-description
   language: Elf
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_elf
 
 - type: medievalKnowledge
   id: BookLanguageOrc
@@ -52,6 +61,9 @@
   description: knowledge-language-description
   language: Orc
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_orc
 
 - type: medievalKnowledge
   id: BookLanguageGoblin
@@ -62,6 +74,9 @@
   description: knowledge-language-description
   language: Goblin
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_goblin
 
 - type: medievalKnowledge
   id: BookLanguageTribe
@@ -72,6 +87,9 @@
   description: knowledge-language-description
   language: Tribe
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_tribe
 
 - type: medievalKnowledge
   id: BookLanguageAncient
@@ -82,6 +100,9 @@
   description: knowledge-language-description
   language: Ancient
   tier: 2
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_ancient
 
 - type: medievalKnowledge
   id: BookLanguageCursed
@@ -92,6 +113,9 @@
   description: knowledge-language-description
   language: Cursed
   tier: 3
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_cursed
 
 - type: medievalKnowledge
   id: BookLanguageGrowling
@@ -102,6 +126,9 @@
   description: knowledge-language-description
   language: Growling
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_growling
 
 - type: medievalKnowledge
   id: BookLanguageHissing
@@ -112,3 +139,6 @@
   description: knowledge-language-description
   language: Hissing
   tier: 1
+  icon:
+    sprite: Imperial/Medieval/Interface/Actions/book_abilities.rsi
+    state: language_hissing

@@ -4,6 +4,7 @@ using Content.Client.UserInterface.Systems.Actions;
 using Content.Client.UserInterface.Systems.Actions.Controls;
 using Content.Shared.Imperial.Medieval.BookAbilities;
 using Content.Shared.Imperial.Medieval.Knowledge;
+using Robust.Client.GameObjects;
 using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -17,6 +18,7 @@ namespace Content.Client.Imperial.Medieval.BookAbilities;
 public sealed class BookAbilitiesMenuSystem : EntitySystem
 {
     [Dependency] private readonly ActionsSystem _actions = default!;
+    [Dependency] private readonly SpriteSystem _sprites = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly IUserInterfaceManager _ui = default!;
@@ -164,7 +166,8 @@ public sealed class BookAbilitiesMenuSystem : EntitySystem
         {
             if (knowledge!.Actions.Count != 0)
                 continue;
-            _menu.AddAbility(Loc.GetString(knowledge.Name), Loc.GetString(knowledge.Description), null);
+            var icon = knowledge.Icon == null ? null : _sprites.Frame0(knowledge.Icon);
+            _menu.AddAbility(Loc.GetString(knowledge.Name), Loc.GetString(knowledge.Description), null, icon);
         }
         UpdateCooldowns();
     }

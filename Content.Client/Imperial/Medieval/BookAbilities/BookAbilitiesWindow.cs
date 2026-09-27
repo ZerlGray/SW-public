@@ -1,5 +1,6 @@
 using System.Numerics;
 using Content.Client.UserInterface.Systems.Actions.Controls;
+using Robust.Client.Graphics;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 
@@ -38,12 +39,25 @@ public sealed class BookAbilitiesWindow : DefaultWindow
         Entries.AddChild(new Label { Text = title, Margin = new Thickness(0, 8, 0, 0) });
     }
 
-    public Button AddAbility(string name, string description, Action? activate)
+    public Button AddAbility(string name, string description, Action? activate, Texture? icon = null)
     {
-        var row = new BoxContainer
+        var row = new BoxContainer { SeparationOverride = 8 };
+        if (icon != null)
+        {
+            row.AddChild(new TextureRect
+            {
+                Texture = icon,
+                MinSize = new Vector2(64, 64),
+                MaxSize = new Vector2(64, 64),
+                VerticalAlignment = VAlignment.Top,
+                Stretch = TextureRect.StretchMode.KeepAspectCentered,
+            });
+        }
+        var details = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
             SeparationOverride = 3,
+            HorizontalExpand = true,
         };
         var button = new Button
         {
@@ -55,8 +69,9 @@ public sealed class BookAbilitiesWindow : DefaultWindow
         };
         if (activate != null)
             button.OnPressed += _ => activate();
-        row.AddChild(button);
-        row.AddChild(new RichTextLabel { Text = description, Margin = new Thickness(6, 0, 6, 4) });
+        details.AddChild(button);
+        details.AddChild(new RichTextLabel { Text = description, Margin = new Thickness(6, 0, 6, 4) });
+        row.AddChild(details);
         Entries.AddChild(row);
         return button;
     }
