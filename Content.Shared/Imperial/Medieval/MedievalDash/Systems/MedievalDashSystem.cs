@@ -62,7 +62,7 @@ public sealed partial class MedievalDashSystem : EntitySystem
             }
 
             if (_timing.CurTime > dashComponent.DashEndTime && dashComponent.IsDashing ||
-                physicsComponent.LinearVelocity.LengthSquared() < 0.04f)
+                dashComponent.IsDashing && physicsComponent.LinearVelocity.LengthSquared() < 0.04f)
             {
                 dashComponent.IsDashing = false;
                 var ev = new DashEndedEvent();
@@ -161,8 +161,7 @@ public sealed partial class MedievalDashSystem : EntitySystem
         if (performing.Handled)
             return true;
 
-        // TODO модификатор расстояни
-        _physicsSystem.ApplyLinearImpulse(player, impulse, null, physicsComponent);
+        _physicsSystem.ApplyLinearImpulse(player, impulse * Math.Max(0.1f, distEv.Modifier), null, physicsComponent);
 
         var shadowComponent = EnsureComp<PhaseSpaceShadowComponent>(player);
 
@@ -170,7 +169,7 @@ public sealed partial class MedievalDashSystem : EntitySystem
         shadowComponent.PositionUpdateRate = TimeSpan.Zero;
         component.DashEndTime = dashTime + _timing.CurTime;
 
-        component.NextDash = _timing.CurTime + component.DashReloadTime + TimeSpan.FromSeconds(staminaEv.Modifier);
+        component.NextDash = _timing.CurTime + component.DashReloadTime * Math.Max(0.1f, cooldownEv.Modifier);
         component.DashButtonPressedTick = _timing.CurTick;
         component.IsDashing = true;
 
@@ -178,9 +177,9 @@ public sealed partial class MedievalDashSystem : EntitySystem
         RaiseLocalEvent(player, ref startEv);
 
         component.StartDashPos = _transformSystem.GetWorldPosition(player);
-        component.LegalEndDashPos = _transformSystem.GetWorldPosition(player) + impulse.Normalized() * GetDashDistanceCollision(player, impulse.Normalized(), 5);
+        component.LegalEndDashPos = _transformSystem.GetWorldPosition(player) + impulse.Normalized() * GetDashDistanceCollision(player, impulse.Normalized(), 5 * Math.Max(0.1f, distEv.Modifier));
 
-        return false;
+        return true;
     }
 
     private float? GetDashDistanceCollision(EntityUid uid, Vector2 direction, float maxDistance)
