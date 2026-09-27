@@ -5,17 +5,21 @@
   rsiPath: /Textures/Imperial/Medieval/Interface/Skills/endurance.rsi
   icons:
     1: worst
-    5: bad
+    4: bad
     8: ok
-    15: good
+    12: good
+    16: good
     20: best
   modifiers:
-    PositiveSprintStaminaDamageModifier: -0.05
-    NegativeSprintStaminaDamageModifier: 0.03
-    PositiveSlowdownModifier: 0.01
-    PositiveStaminaRegenModifier: 0.015
-    NegativeStaminaRegenModifier: -0.015
-    PositiveStaminaCritModifier: -0.03
-    NegativeStaminaCritModifier: 0.03
-    MaxStaminaDamageModifier: 0.3
-    HighMeleeThrowDistanceModifier: 0.4
+    StaminaMaxPerLevel: 0.03
+    StaminaRegenPerLevel: 0.02
+    StaminaCritDurationPerLevel: -0.03
+    LegendaryStaminaDamageMultiplier: 0.3
+    SprintCostPerLevel: -0.04
+    NeedsMultiplier: 0.25
+    ControlStaminaThreshold: 0.2
+    SlowStaminaPerSecond: 10
+    StunStaminaPerSecond: 20
+    ConvertedStunSpeed: 0.2
+    RecoveryCooldown: 180
+    RecoveryProtection: 3
