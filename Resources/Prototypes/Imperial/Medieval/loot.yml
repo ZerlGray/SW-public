@@ -269,6 +269,11 @@
   id: MedievalChestWithLoot
   name: MedievalChestWithLoot
   components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage: !type:NestedSelector
+        tableId: MedievalRareKnowledgeBooks
+        prob: 0.01
   - type: Sprite
     sprite: Imperial/Medieval/Decor/chest.rsi
     layers:
@@ -783,6 +788,11 @@
   id: MedievalChestWithLoot2
   name: MedievalChestWithLoot2
   components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage: !type:NestedSelector
+        tableId: MedievalRareKnowledgeBooks
+        prob: 0.02
   - type: Sprite
     sprite: Imperial/Medieval/Decor/chest2.rsi
     layers:
@@ -1322,6 +1332,11 @@
   id: MedievalChestWithLoot3
   name: MedievalChestWithLoot3
   components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage: !type:NestedSelector
+        tableId: MedievalRareKnowledgeBooks
+        prob: 0.03
   - type: Sprite
     sprite: Imperial/Medieval/Decor/chest3.rsi
     layers:
@@ -1945,6 +1960,11 @@
   id: MedievalChestWithLoot4
   name: MedievalChestWithLoot4
   components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage: !type:NestedSelector
+        tableId: MedievalRareKnowledgeBooks
+        prob: 0.04
   - type: Sprite
     sprite: Imperial/Medieval/Decor/chest4.rsi
     layers:
