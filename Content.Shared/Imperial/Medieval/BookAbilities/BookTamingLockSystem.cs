@@ -1,12 +1,13 @@
 using Content.Shared.ActionBlocker;
 using Content.Shared.DoAfter;
+using Content.Shared.Interaction.Events;
 using Content.Shared.Movement.Events;
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.Imperial.Medieval.BookAbilities;
 
-/// <summary>Only stops voluntary movement; the training channel remains interruptible.</summary>
+/// <summary>Stops voluntary movement and attacks while training uses the standard DoAfter cancellation rules.</summary>
 [RegisterComponent, NetworkedComponent]
 public sealed partial class BookTamingLockComponent : Component;
 
@@ -23,6 +24,7 @@ public sealed class BookTamingLockSystem : EntitySystem
         SubscribeLocalEvent<BookTamingLockComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<BookTamingLockComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<BookTamingLockComponent, UpdateCanMoveEvent>(OnCanMove);
+        SubscribeLocalEvent<BookTamingLockComponent, AttackAttemptEvent>(OnAttack);
     }
 
     private void OnStartup(Entity<BookTamingLockComponent> ent, ref ComponentStartup args) => _blocker.UpdateCanMove(ent);
@@ -30,6 +32,12 @@ public sealed class BookTamingLockSystem : EntitySystem
     private void OnShutdown(Entity<BookTamingLockComponent> ent, ref ComponentShutdown args) => _blocker.UpdateCanMove(ent);
 
     private void OnCanMove(EntityUid uid, BookTamingLockComponent comp, UpdateCanMoveEvent args)
+    {
+        if (comp.LifeStage < ComponentLifeStage.Stopping)
+            args.Cancel();
+    }
+
+    private void OnAttack(EntityUid uid, BookTamingLockComponent comp, AttackAttemptEvent args)
     {
         if (comp.LifeStage < ComponentLifeStage.Stopping)
             args.Cancel();

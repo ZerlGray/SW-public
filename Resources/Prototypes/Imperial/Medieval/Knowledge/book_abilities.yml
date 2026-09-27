@@ -294,10 +294,12 @@
   parent: BaseActionBookTargetAbility
   id: ActionBookTaming
   name: Договор с хищником
-  description: Держите еду и выберите ослабленного зверя. Вы оба замрёте; прерывание вернёт его агрессию.
+  description: Держите корм и выберите ослабленного зверя в пределах 6 клеток без преград между вами. Приручение занимает 30 секунд и расходует корм при успехе. Нажатие движения, прямое попадание атаки, потеря корма или дистанции прервут его. Яд и кровопотеря его не прерывают. Можно иметь одного живого спутника.
   components:
   - type: Action
     useDelay: 60
+  - type: TargetAction
+    range: 6
   - type: EntityTargetAction
     event: !type:BookTamingActionEvent
 
@@ -444,6 +446,7 @@
 - type: entity
   id: ActionBookCompanionGuard
   name: "Спутники: охранять"
+  description: Выберите персонажа или предмет. Спутники будут держаться рядом и защищать его от нападающих. Можно выбрать себя.
   components:
   - type: BookAbilityAction
   - type: Action
@@ -454,9 +457,14 @@
     icon:
       sprite: Objects/Misc/books.rsi
       state: icon_text
-  - type: InstantAction
-    event: !type:BookCompanionOrderEvent
-      order: guard
+  - type: TargetAction
+    range: 12
+  - type: EntityTargetAction
+    canTargetSelf: true
+    whitelist:
+      components:
+      - Damageable
+    event: !type:BookCompanionGuardEvent
 
 - type: entity
   id: ActionBookCompanionRetreat

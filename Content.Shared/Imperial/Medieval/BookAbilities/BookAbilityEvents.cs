@@ -25,6 +25,7 @@ public sealed partial class BookCompanionOrderEvent : InstantActionEvent
     [DataField] public string Order = "follow";
 }
 public sealed partial class BookCompanionAttackEvent : EntityTargetActionEvent;
+public sealed partial class BookCompanionGuardEvent : EntityTargetActionEvent;
 
 /// <summary>One deliberately prepared die result; the throw still looks like an ordinary roll.</summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]

@@ -29,10 +29,12 @@ public sealed partial class MedievalCompanionComponent : Component
 {
     [DataField] public EntityUid Master;
     [DataField] public string Order = "follow";
-    [DataField] public EntityCoordinates? GuardOrigin;
-    public bool ReturningToGuard;
+    [DataField] public EntityUid? GuardTarget;
     public EntityUid? CommandedEnemy;
 }
+
+[RegisterComponent]
+public sealed partial class MedievalGuardedTargetComponent : Component;
 
 [RegisterComponent]
 public sealed partial class MedievalCompanionOwnerComponent : Component
@@ -62,12 +64,15 @@ public sealed class MedievalCompanionSystem : EntitySystem
     {
         SubscribeLocalEvent<MedievalCompanionOwnerComponent, BookCompanionOrderEvent>(OnOrder);
         SubscribeLocalEvent<MedievalCompanionOwnerComponent, BookCompanionAttackEvent>(OnAttack);
-        SubscribeLocalEvent<MedievalCompanionOwnerComponent, DamageChangedEvent>(OnOwnerHurt);
+        SubscribeLocalEvent<MedievalCompanionOwnerComponent, BookCompanionGuardEvent>(OnGuard);
+        SubscribeLocalEvent<MedievalGuardedTargetComponent, DamageChangedEvent>(OnGuardedTargetHurt);
+        SubscribeLocalEvent<MedievalCompanionComponent, ComponentShutdown>(OnCompanionShutdown);
         SubscribeLocalEvent<MedievalPacifiedBeastComponent, DamageChangedEvent>(OnHurt);
     }
 
     public int OwnedCount(EntityUid owner) => EntityQuery<MedievalCompanionComponent>()
-        .Count(c => c.Master == owner && !Deleted(c.Owner));
+        .Count(c => c.Master == owner && !TerminatingOrDeleted(c.Owner) &&
+                    TryComp<MobStateComponent>(c.Owner, out var state) && state.CurrentState != MobState.Dead);
 
     public bool CanTame(EntityUid beast, EntityUid owner)
     {
@@ -76,7 +81,7 @@ public sealed class MedievalCompanionSystem : EntitySystem
             return false;
         if (TryComp<MindContainerComponent>(beast, out var mind) && mind.HasMind)
             return false;
-        if (!TryComp<MobStateComponent>(beast, out var state) || state.CurrentState == MobState.Dead)
+        if (!TryComp<MobStateComponent>(beast, out var state) || state.CurrentState != MobState.Alive)
             return false;
         return !TryComp<MedievalCompanionComponent>(beast, out var pet) || pet.Master == owner;
     }
@@ -135,20 +140,26 @@ public sealed class MedievalCompanionSystem : EntitySystem
     {
         if (!TryComp<MedievalCompanionComponent>(beast, out var pet) || !TryComp<HTNComponent>(beast, out var htn))
             return;
+        if (order == "guard" && (target is not { } guarded || guarded == beast ||
+                                TerminatingOrDeleted(guarded) || !HasComp<DamageableComponent>(guarded)))
+            return;
         ResetPlan(htn);
+        ClearGuardTarget(pet);
         pet.Order = order;
-        pet.GuardOrigin = order == "guard" ? Transform(beast).Coordinates : null;
-        pet.ReturningToGuard = false;
+        if (order == "guard")
+        {
+            pet.GuardTarget = target;
+            EnsureComp<MedievalGuardedTargetComponent>(target!.Value);
+        }
         var type = order switch
         {
             "stay" => RatKingOrderType.Stay,
-            "guard" => RatKingOrderType.Loose,
             "attack" => RatKingOrderType.CheeseEm,
             _ => RatKingOrderType.Follow
         };
         _npc.SetBlackboard(beast, NPCBlackboard.CurrentOrders, type);
-        _npc.SetBlackboard(beast, NPCBlackboard.FollowTarget, new EntityCoordinates(pet.Master, Vector2.Zero));
-        if (target != null && target != pet.Master)
+        _npc.SetBlackboard(beast, NPCBlackboard.FollowTarget, new EntityCoordinates(pet.GuardTarget ?? pet.Master, Vector2.Zero));
+        if (order == "attack" && target != null && target != pet.Master)
         {
             _npc.SetBlackboard(beast, NPCBlackboard.CurrentOrderedTarget, target.Value);
             // OrderedTargets first filters by hostility, even for an explicit command against a fellow faction member.
@@ -187,17 +198,39 @@ public sealed class MedievalCompanionSystem : EntitySystem
         args.Handled = true;
     }
 
-    private void OnOwnerHurt(EntityUid uid, MedievalCompanionOwnerComponent comp, DamageChangedEvent args)
+    private void OnGuard(EntityUid uid, MedievalCompanionOwnerComponent comp, BookCompanionGuardEvent args)
+    {
+        if (args.Handled || TerminatingOrDeleted(args.Target) || !HasComp<DamageableComponent>(args.Target)) return;
+        foreach (var pet in EntityQuery<MedievalCompanionComponent>().Where(c => c.Master == uid && c.Owner != args.Target).ToArray())
+        {
+            IssueOrder(pet.Owner, "guard", args.Target);
+            args.Handled = true;
+        }
+    }
+
+    private void ClearGuardTarget(MedievalCompanionComponent pet)
+    {
+        if (pet.GuardTarget is not { } target) return;
+        pet.GuardTarget = null;
+        if (!TerminatingOrDeleted(target) && !EntityQuery<MedievalCompanionComponent>().Any(p => p.GuardTarget == target))
+            RemComp<MedievalGuardedTargetComponent>(target);
+    }
+
+    private void OnCompanionShutdown(EntityUid uid, MedievalCompanionComponent comp, ComponentShutdown args) =>
+        ClearGuardTarget(comp);
+
+    private void OnGuardedTargetHurt(EntityUid uid, MedievalGuardedTargetComponent comp, DamageChangedEvent args)
     {
         if (!args.DamageIncreased || args.Origin is not { } attacker || attacker == uid ||
-            !HasComp<MobStateComponent>(attacker) ||
-            TryComp<MedievalCompanionComponent>(attacker, out var friendly) && friendly.Master == uid) return;
-        foreach (var pet in EntityQuery<MedievalCompanionComponent>().Where(p => p.Master == uid && p.Order == "guard").ToArray())
+            !HasComp<MobStateComponent>(attacker)) return;
+        var origin = new EntityCoordinates(uid, Vector2.Zero);
+        foreach (var pet in EntityQuery<MedievalCompanionComponent>().Where(p => p.GuardTarget == uid && p.Order == "guard").ToArray())
         {
-            if (pet.GuardOrigin is not { } origin || !TryComp<HTNComponent>(pet.Owner, out var htn) ||
+            if (attacker == pet.Owner || attacker == pet.Master ||
+                TryComp<MedievalCompanionComponent>(attacker, out var friendly) && friendly.Master == pet.Master ||
+                !TryComp<HTNComponent>(pet.Owner, out var htn) || !htn.Enabled ||
                 !origin.TryDistance(EntityManager, Transform(attacker).Coordinates, out var distance) || distance > 5f) continue;
             ResetPlan(htn);
-            pet.ReturningToGuard = false;
             pet.CommandedEnemy = attacker;
             _factions.AggroEntity(pet.Owner, attacker);
             _npc.SetBlackboard(pet.Owner, NPCBlackboard.CurrentOrders, RatKingOrderType.CheeseEm);
@@ -225,6 +258,8 @@ public sealed class MedievalCompanionSystem : EntitySystem
 
     private void OnHurt(EntityUid uid, MedievalPacifiedBeastComponent comp, DamageChangedEvent args)
     {
+        // Training owns this pause and applies DoAfter's damage rule to both participants.
+        if (HasComp<BookTamingLockComponent>(uid)) return;
         if (args.DamageIncreased) EndPacification(uid);
     }
 
@@ -287,32 +322,26 @@ public sealed class MedievalCompanionSystem : EntitySystem
     public override void Update(float frameTime)
     {
         foreach (var comp in EntityQuery<MedievalPacifiedBeastComponent>().ToArray())
-            if (_timing.CurTime >= comp.Until) EndPacification(comp.Owner);
+            if (_timing.CurTime >= comp.Until && !HasComp<BookTamingLockComponent>(comp.Owner))
+                EndPacification(comp.Owner);
         if (_timing.CurTime < _nextGuardReview) return;
         _nextGuardReview = _timing.CurTime + TimeSpan.FromSeconds(0.5);
         var guards = EntityQueryEnumerator<MedievalCompanionComponent, HTNComponent, TransformComponent>();
         while (guards.MoveNext(out var uid, out var pet, out var htn, out var xform))
         {
-            if (pet.Order != "guard" || pet.GuardOrigin is not { } origin || !htn.Enabled ||
-                !origin.TryDistance(EntityManager, xform.Coordinates, out var distance)) continue;
+            if (pet.Order != "guard" || pet.GuardTarget is not { } target || !htn.Enabled) continue;
+            if (TerminatingOrDeleted(target))
+            {
+                IssueOrder(uid, "follow");
+                continue;
+            }
+            var origin = new EntityCoordinates(target, Vector2.Zero);
+            if (!origin.TryDistance(EntityManager, xform.Coordinates, out var distance)) continue;
             var enemyGone = pet.CommandedEnemy is { } enemy &&
                 (!TryComp<MobStateComponent>(enemy, out var state) || state.CurrentState == MobState.Dead ||
                  !origin.TryDistance(EntityManager, Transform(enemy).Coordinates, out var enemyDistance) || enemyDistance > 5f);
-            if (!pet.ReturningToGuard && (distance > 5f || enemyGone))
-            {
-                ResetPlan(htn);
-                pet.ReturningToGuard = true;
-                _npc.SetBlackboard(uid, NPCBlackboard.CurrentOrders, RatKingOrderType.Follow);
-                _npc.SetBlackboard(uid, NPCBlackboard.FollowTarget, origin);
-                ResumeBrain(uid, htn, pet);
-            }
-            else if (pet.ReturningToGuard && distance <= 1.5f)
-            {
-                ResetPlan(htn);
-                pet.ReturningToGuard = false;
-                _npc.SetBlackboard(uid, NPCBlackboard.CurrentOrders, RatKingOrderType.Loose);
-                ResumeBrain(uid, htn, pet);
-            }
+            if (pet.CommandedEnemy != null && (distance > 5f || enemyGone))
+                IssueOrder(uid, "guard", target);
         }
     }
 }
