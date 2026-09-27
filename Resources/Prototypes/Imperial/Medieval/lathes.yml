@@ -5,6 +5,8 @@
   name: MedievalStoneWorkerPlace
   description: MedievalStoneWorkerPlace
   components:
+  - type: BookPackableWorkbench
+  - type: SkillWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -81,6 +83,7 @@
   name: MedievalStoneWizardPlace
   description: MedievalStoneWizardPlace
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -149,6 +152,7 @@
   name: MedievalWizardPlace
   description: MedievalWizardPlace
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -221,6 +225,7 @@
   description: MedievalWizardPotion
   noSpawn: true
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -297,6 +302,7 @@
   name: MedievalWizardGrass
   description: MedievalWizardGrass
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -381,6 +387,8 @@
   noSpawn: true
   description: MedievalKeybench
   components:
+  - type: BookPackableWorkbench
+  - type: SkillWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -457,6 +465,7 @@
   name: mortar
   description: From BlenderTech. Will It Blend? Let's find out!
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Transform
@@ -522,6 +531,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -606,6 +616,7 @@
   name: campfire
   description: It's fire.
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Microwave
@@ -679,6 +690,7 @@
   name: MedievalAlcPlace
   description: It produces aroows and range weapon using steel leather and wood.
   components:
+  - type: BookPackableWorkbench
   - type: ApcPowerReceiver
     needsPower: false
   - type: Sprite
@@ -750,6 +762,7 @@
   id: CP14BaseWorkbench
   abstract: true
   components:
+  - type: BookPackableWorkbench
   - type: ActivatableUI
     key: enum.CP14WorkbenchUiKey.Key
   - type: Climbable
@@ -771,6 +784,7 @@
   - BaseStructure
   id: MedievalMeltingPlace
   components:
+  - type: BookPackableWorkbench
   - type: Climbable
   - type: Clickable
   - type: TrashDefendArea
@@ -819,6 +833,7 @@
   name: LeatherWorkingPlace
   description: It produces armor and weapon using leather wood and steel.
   components:
+  - type: SkillWorkbench
   - type: MedievalRepairStation
     repairType: Sewing
   - type: Sprite
@@ -898,6 +913,7 @@
   name: MedievalWoodWorkerPlace
   description: It produces aroows and range weapon using steel leather and wood.
   components:
+  - type: SkillWorkbench
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/wood_worker.rsi
     state: icon
@@ -983,6 +999,7 @@
   name: foundry
   description: It produces sheets and ingots using ores.
   components:
+  - type: SkillWorkbench
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/foundry_mines.rsi
     state: icon
@@ -1002,6 +1019,7 @@
   name: foundry
   description: It produces sheets and ingots using ores.
   components:
+  - type: SkillWorkbench
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/foundry.rsi
     state: icon
@@ -1059,6 +1077,7 @@
   name: MedievalWizardBlacksmith
   description: MedievalWizardBlacksmith
   components:
+  - type: SkillWorkbench
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/wizard_blacksmith.rsi
     state: icon
@@ -1186,6 +1205,7 @@
   name: BlackSmith
   description: It produces armor and weapon using steel and wood.
   components:
+  - type: SkillWorkbench
   - type: MedievalRepairStation
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/wood_worker.rsi
@@ -1394,6 +1414,7 @@
   name: ClothWorkingPlace
   description: It produces clothing using leather wood and steel.
   components:
+  - type: SkillWorkbench
   - type: Sprite
     sprite: Imperial/Medieval/Lathe/clothing_workspace.rsi
     state: icon

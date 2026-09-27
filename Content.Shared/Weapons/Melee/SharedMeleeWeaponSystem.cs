@@ -583,6 +583,8 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         if (before.Cancelled) return;
         targets = before.HitEntities;
 
+        if (!targets.Contains(target.Value))
+            return;
         var incoming = new BeforeAttackEffectsEvent(meleeUid, user, AttackDelivery.Melee);
         RaiseLocalEvent(target.Value, ref incoming);
         if (incoming.Cancelled)
@@ -760,6 +762,8 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
                 !damageQuery.HasComponent(entity))
                 continue;
 
+            if (!Blocker.CanAttack(user, entity, (meleeUid, component)))
+                continue;
             var incoming = new BeforeAttackEffectsEvent(meleeUid, user, AttackDelivery.Melee);
             RaiseLocalEvent(entity, ref incoming);
             if (incoming.Cancelled)

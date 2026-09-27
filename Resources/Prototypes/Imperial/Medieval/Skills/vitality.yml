@@ -5,18 +5,22 @@
   rsiPath: /Textures/Imperial/Medieval/Interface/Skills/vitality.rsi
   icons:
     1: worst
-    5: bad
+    4: bad
     8: ok
-    15: good
+    12: good
+    16: good
     20: best
   modifiers:
-    AliveHealthPerLevel: 3
-    WoundedHealthPerLevel: 4
-    MaxHealthBonus: 12
-    PositiveSlowdownModifier: 0.03
-    PositiveSleepEffeciencyModifier: -0.03
-    NegativeSleepEffeciencyModifier: 0.03
-    PositiveSuffocationDamageModifier: -0.03
-    NegativeSuffocationDamageModifier: 0.02
-    PositiveBloodRegenModifier: 0.06
-    NegativeBloodRegenModifier: -0.06
+    HealthPerLevel: 0.025
+    BloodRegenPerLevel: 0.04
+    SleepRecoveryPerLevel: 0.04
+    SuffocationDamagePerLevel: -0.03
+    LowHealingReceivedPerLevel: 0.05
+    HealingReceivedPerLevel: 0.015
+    CriticalSpeed: 0.35
+    FallDamage: 5
+    DirtyIllnessChance: 0.05
+    DirtyFoodChance: 0.1
+    FragileFoodChance: 0.02
+    IllnessCooldown: 300
+    MedicinalOverdoseThresholdMultiplier: 2

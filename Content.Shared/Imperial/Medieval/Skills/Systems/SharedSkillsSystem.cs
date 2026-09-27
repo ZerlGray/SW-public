@@ -41,42 +41,7 @@ public abstract partial class SharedSkillsSystem : EntitySystem
         return (proto, skillComponent.Levels.TryGetValue(id, out var val) ? val : 10);
     }
 
-    public static int GetPointsCost(int level)
-    {
-        if (level == 10)
-            return 0;
-        var sum = 0;
-
-        if (level > 10)
-        {
-            for (var i = 0; i < level; i++)
-            {
-                sum += i switch
-                {
-                    <= 9 => 0,
-                    >= 19 => -4,
-                    >= 17 => -3,
-                    >= 14 => -2,
-                    >= 10 => -1,
-                };
-            }
-        }
-        else
-        {
-            for (var i = 9; i >= level; i--)
-            {
-                sum += (i - level) switch
-                {
-                    <= 0 => 1,
-                    <= 4 => 2,
-                    <= 7 => 2,
-                    >= 8 => 3,
-                };
-            }
-        }
-
-        return sum;
-    }
+    public static int GetPointsCost(int level) => SkillPointCosts.GetCost(level);
 
     public static Dictionary<string, int> GetDefaultSkillLevels(IPrototypeManager prototypes)
     {
