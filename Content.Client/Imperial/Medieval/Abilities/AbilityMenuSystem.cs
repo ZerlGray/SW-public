@@ -28,7 +28,6 @@ public sealed class AbilityMenuSystem : EntitySystem
 
     public override void Initialize()
     {
-        SubscribeLocalEvent<AbilityMenuActionComponent, ActionAutoPopulateAttemptEvent>(OnAutoPopulate);
         SubscribeLocalEvent<AbilityMenuComponent, OpenAbilityMenuEvent>(OnOpenMenu);
         SubscribeLocalEvent<AbilityMenuComponent, LocalPlayerDetachedEvent>(OnDetached);
         SubscribeLocalEvent<AbilityMenuComponent, ComponentShutdown>(OnShutdown);
@@ -40,11 +39,6 @@ public sealed class AbilityMenuSystem : EntitySystem
         _actions.ActionsUpdated -= QueueRefresh;
         _menu?.Close();
         base.Shutdown();
-    }
-
-    private void OnAutoPopulate(EntityUid uid, AbilityMenuActionComponent component, ActionAutoPopulateAttemptEvent args)
-    {
-        args.Cancel();
     }
 
     private void OnOpenMenu(EntityUid uid, AbilityMenuComponent component, OpenAbilityMenuEvent args)

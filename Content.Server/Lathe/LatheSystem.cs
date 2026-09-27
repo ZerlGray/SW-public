@@ -482,10 +482,6 @@ namespace Content.Server.Lathe
 
         private void OnLatheQueueRecipeMessage(EntityUid uid, LatheComponent component, LatheQueueRecipeMessage args)
         {
-            var attempt = new Content.Shared.Construction.CraftingAttemptEvent(uid);
-            RaiseLocalEvent(args.Actor, ref attempt);
-            if (attempt.Cancelled)
-                return;
             if (_proto.TryIndex(args.ID, out LatheRecipePrototype? recipe))
             {
                 if (TryAddToQueue(uid, recipe, args.Quantity, component))

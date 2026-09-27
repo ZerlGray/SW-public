@@ -250,7 +250,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
         if (action.Comp.Toggled && EntityManager.TryGetComponent<TargetActionComponent>(actionId, out var target))
             StartTargeting((action, action, target));
 
-        if (_actions.Contains(action) || !AllowsAutoPopulate(action.Owner))
+        if (_actions.Contains(action) || !action.Comp.AutoPopulate)
             return;
 
         _actions.Add(action);
@@ -755,8 +755,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
         if (_actionsSystem == null)
             return;
 
-        var actions = _actionsSystem.GetClientActions()
-            .Where(action => action.Comp.AutoPopulate && AllowsAutoPopulate(action.Owner)).ToList();
+        var actions = _actionsSystem.GetClientActions().Where(action => action.Comp.AutoPopulate).ToList();
         actions.Sort(ActionComparer);
 
         _actions.Clear();

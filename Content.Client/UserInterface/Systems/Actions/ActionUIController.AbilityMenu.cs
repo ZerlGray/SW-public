@@ -1,4 +1,3 @@
-using Content.Client.Actions;
 using Content.Client.UserInterface.Systems.Actions.Controls;
 using Content.Shared.Actions.Components;
 
@@ -6,13 +5,6 @@ namespace Content.Client.UserInterface.Systems.Actions;
 
 public sealed partial class ActionUIController
 {
-    private bool AllowsAutoPopulate(EntityUid actionId)
-    {
-        var attempt = new ActionAutoPopulateAttemptEvent();
-        EntityManager.EventBus.RaiseLocalEvent(actionId, attempt);
-        return !attempt.Cancelled;
-    }
-
     /// <summary>Activate an owned action using the same targeting flow as a toolbar button.</summary>
     public void ActivateAction(EntityUid actionId)
     {
