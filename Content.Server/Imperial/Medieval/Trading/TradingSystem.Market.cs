@@ -707,10 +707,7 @@ public sealed partial class TradingSystem
                           HasComp<MedievalMeleeResourceComponent>(item) ||
                           HasComp<MedievalArmorIntegrityComponent>(item);
         var isDamagedEquipment = !forceIntactEquipment && IsDamagedEquipment(item);
-        var identity = new TradingItemIdentityEvent();
-        RaiseLocalEvent(item, identity);
         var matchesCommon = !isRecipe &&
-                            !identity.ForceUnique &&
                             !isCanvas &&
                             !hasStoredSolution &&
                             !hasCurrencyValue &&
@@ -726,7 +723,7 @@ public sealed partial class TradingSystem
             return true;
         }
 
-        var signature = BuildItemSignature(item, product, stackCount, isEquipment, isDamagedEquipment, identity.Parts);
+        var signature = BuildItemSignature(item, product, stackCount, isEquipment, isDamagedEquipment);
         var existing = market.Comp.Commodities.Values.FirstOrDefault(value =>
             !value.Permanent && value.Signature == signature);
         if (existing != null)
@@ -789,16 +786,13 @@ public sealed partial class TradingSystem
         EntProtoId product,
         int stackCount,
         bool isEquipment,
-        bool isDamagedEquipment,
-        List<string> identityParts)
+        bool isDamagedEquipment)
     {
         var values = new List<string>
         {
             product.Id,
             stackCount.ToString(CultureInfo.InvariantCulture),
         };
-        // Item-specific identity also applies to equipment (for example, books usable as melee weapons).
-        values.AddRange(identityParts);
 
         if (isEquipment)
         {

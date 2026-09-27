@@ -1015,6 +1015,9 @@ public sealed class EntitySpokeEvent : EntityEventArgs
     public readonly EntityUid Source;
     /// <summary>Physical origin of the voice, which may differ from its actor during ventriloquism.</summary>
     public EntityUid SoundSource;
+    /// <summary>Use the supplied speech sound instead of the speaker's voice; null means silence.</summary>
+    public bool OverrideSpeechSound;
+    public SoundSpecifier? SpeechSound;
     public readonly string Message;
     public readonly string? ObfuscatedMessage; // not null if this was a whisper
     /// <summary>

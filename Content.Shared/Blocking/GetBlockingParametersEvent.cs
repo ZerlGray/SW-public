@@ -5,5 +5,4 @@ namespace Content.Shared.Blocking;
 public record struct GetBlockingParametersEvent(EntityUid Shield)
 {
     public bool RequiresAnchoring = true;
-    public bool CheckOccupancy = true;
 }

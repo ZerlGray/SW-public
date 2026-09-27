@@ -19,12 +19,15 @@ using Content.Shared.Imperial.Medieval.Magic.Mana;
 using Content.Shared.Interaction.Events;
 using Content.Shared.Mind.Components;
 using Content.Shared.Paper;
+using Content.Shared.Speech;
 using Content.Shared.Verbs;
 using Content.Shared.Tag;
 using Robust.Shared.Map;
+using Robust.Shared.Audio;
 using Robust.Shared.Configuration;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Random;
 using Robust.Shared.Utility;
 
 namespace Content.Server.Imperial.Medieval.BookAbilities;
@@ -56,6 +59,10 @@ public sealed partial class MedievalBookAbilitySystem
     [Dependency] private readonly ChatSystem _voiceChat = default!;
     [Dependency] private readonly IConfigurationManager _voiceConfig = default!;
     [Dependency] private readonly LanguageSystem _voiceLanguage = default!;
+    [Dependency] private readonly SpeechSoundSystem _voiceSounds = default!;
+    [Dependency] private readonly IRobustRandom _voiceRandom = default!;
+
+    private static readonly ProtoId<SpeechSoundsPrototype>[] ObjectVoices = ["Bass", "Baritone", "Tenor", "Alto"];
 
     private sealed record VoiceRequest(int Id, EntityUid Source, ICommonSession Session, TimeSpan Until)
     {
@@ -92,8 +99,25 @@ public sealed partial class MedievalBookAbilitySystem
 
     private void OnVoiceSpoken(EntityUid uid, LearnedKnowledgeComponent comp, EntitySpokeEvent args)
     {
-        if (VoiceSource(uid) is var source && source != uid)
-            args.SoundSource = source;
+        var source = VoiceSource(uid);
+        if (source == uid)
+            return;
+
+        args.SoundSource = source;
+        args.OverrideSpeechSound = true;
+        args.SpeechSound = null;
+        if (HasComp<HumanoidAppearanceComponent>(source))
+        {
+            if (TryComp<SpeechComponent>(source, out var speech))
+                args.SpeechSound = _voiceSounds.GetSpeechSound((source, speech), args.Message);
+            return;
+        }
+
+        // Objects have no personal voice. Pick a human sound set for this one utterance.
+        var voices = ObjectVoices.Where(voice => _prototypes.HasIndex(voice)).ToArray();
+        if (voices.Length > 0)
+            args.SpeechSound = _voiceSounds.GetSpeechSound(_voiceRandom.Pick(voices),
+                AudioParams.Default.WithVolume(-2f).WithRolloffFactor(4.5f), args.Message);
     }
 
     private void OnVisualSpeechRecipients(LanguageSpeechRecipientsEvent args)

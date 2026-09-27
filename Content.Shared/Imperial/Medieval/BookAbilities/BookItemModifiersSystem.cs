@@ -26,7 +26,6 @@ public sealed class BookItemModifiersSystem : EntitySystem
         if (!knowledge.Knowledge.Contains("BookMobileBlock"))
             return;
         args.RequiresAnchoring = false;
-        args.CheckOccupancy = false;
     }
 
     private void OnBrokenGuardToggle(EntityUid uid, BookBrokenGuardComponent broken, ToggleActionEvent args)
