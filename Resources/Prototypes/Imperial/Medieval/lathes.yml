@@ -1099,7 +1099,10 @@
     - RecycleCrystalToEssenceFire
     - RecycleCrystalToEssenceLight
     - RecycleCrystalToEssenceEarth
+    - MedievalScrollBarrierNovice
     - MedievalScrollBarrier
+    - MedievalScrollBarrierOverclocked
+    - MedievalScrollBarrierUnstable
     - MedievalManaBurnGrenade
     - MedievalGlowStone
     - MedievalCompactDefibrillator

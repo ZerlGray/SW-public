@@ -1466,6 +1466,29 @@
 
 - type: entity
   name: falshion
+  parent: MedievalFalshionT3
+  id: MedievalFalshionT3McDonalds
+  description: An ancient war blade.
+  components:
+  - type: Sprite
+    sprite: Imperial/Medieval/Melee/mcdonalds_axe.rsi
+  - type: Clothing
+    sprite: Imperial/Medieval/Melee/mcdonalds_axe.rsi
+
+- type: entity
+  name: falshion
+  parent: MedievalFalshionT3Steel
+  id: MedievalFalshionT3SteelMcDonalds
+  description: An ancient war blade.
+  components:
+  - type: Sprite
+    sprite: Imperial/Medieval/Melee/mcdonalds_axe.rsi
+  - type: Clothing
+    sprite: Imperial/Medieval/Melee/mcdonalds_axe.rsi
+
+
+- type: entity
+  name: falshion
   parent: MedievalFalshionT3Steel
   id: MedievalFalshionT3SteelFoxei
   description: An ancient war blade.
@@ -1763,7 +1786,7 @@
     soundSwing:
       path: /Audio/Imperial/Medieval/spear_swing.ogg
   - type: MedievalMeleeResource
-    resourceWaste: 0.7
+    resourceWaste: 0.4
   - type: Item
     size: Huge
   - type: Clothing
@@ -1860,7 +1883,7 @@
     soundSwing:
       path: /Audio/Imperial/Medieval/spear_swing.ogg
   - type: MedievalMeleeResource
-    resourceWaste: 0.7
+    resourceWaste: 0.4
   - type: Clothing
     quickEquip: false
     slots:
@@ -3419,7 +3442,7 @@
     soundSwing:
       path: /Audio/Imperial/Medieval/spear_swing.ogg
   - type: MedievalMeleeResource
-    resourceWaste: 0.75
+    resourceWaste: 0.4
   - type: Item
     size: Huge
   - type: Clothing
@@ -5412,8 +5435,12 @@
   - type: DamageOtherOnHit
     damage:
       types:
-        Piercing: 39
+        Piercing: 37
         Blunt: 3
+  - type: APDamageOnThrow
+    damage:
+      types:
+        Piercing: 5
   #- type: EmbeddableProjectile
     #offset: 0.15,0.15
   - type: ThrowingAngle
@@ -5480,8 +5507,12 @@
   - type: DamageOtherOnHit
     damage:
       types:
-        Piercing: 39
+        Piercing: 37
         Blunt: 3
+  - type: APDamageOnThrow
+    damage:
+      types:
+        Piercing: 5
   #- type: EmbeddableProjectile
     #offset: 0.15,0.15
   - type: ThrowingAngle

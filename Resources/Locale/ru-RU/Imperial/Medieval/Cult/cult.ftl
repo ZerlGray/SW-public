@@ -10,3 +10,5 @@ cult-spell-book-upgraded = Книга пропитывается силой кр
 
 cult-spell-death-curse-activated = Да падёт проклятие на того, кто поднимет на меня руку
 cult-spell-death-curse-already-active = Ты ощущаешь, что проклятие уже действует
+
+cult-ritual-barrier-damaged = Ритуал был успешно завершён. Стабильность барьера была снижена на одну седьмую от его силы.

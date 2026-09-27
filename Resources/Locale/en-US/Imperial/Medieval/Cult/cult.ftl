@@ -16,3 +16,4 @@ cult-spell-death-curse-activated = Let the curse fall upon the one who raises a 
 
 cult-spell-incorrect = You feel a distortion in the spoken words.
 
+cult-ritual-barrier-damaged = the ritual was completed successfully. the barrier's stability was reduced by one seventh of its power.

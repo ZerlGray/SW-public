@@ -34,6 +34,7 @@ public partial class MagicRuneSystem
 
     private void OnMagicStoneActivatedInHands(EntityUid uid, MagicStoneComponent component, UseInHandEvent args)
     {
+        args.Handled = true;
         HandleRuneLearning(args.User, uid, component.Rune);
     }
 }

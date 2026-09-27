@@ -429,11 +429,11 @@ namespace Content.Server.Cult
                     {
                         foreach (var barrier in EntityManager.EntityQuery<MagicBarrierComponent>())
                         {
-                            barrier.Stability *= 0.7f;
+                            barrier.Stability *= 0.85f;
                         }
                         Spawn("ShockWaveEffect", coords);
                         _audioSystem.PlayPvs(comp.SuccesSound, uid);
-                        _chat.TrySendInGameICMessage(uid, "Ритуал повреждения барьера выполнен успешно, его стабильность снижена на треть от текущей", InGameICChatType.Speak, false);
+                        _chat.TrySendInGameICMessage(uid, Loc.GetString("cult-ritual-barrier-damaged"), InGameICChatType.Speak, false);
                     }
                     break;
                 case "key":
@@ -732,8 +732,8 @@ namespace Content.Server.Cult
                         double speed = 0f;
                         foreach (var barrier in EntityManager.EntityQuery<MagicBarrierComponent>())
                         {
-                            stab = Math.Round(barrier.Stability, 2);
-                            speed = Math.Round(barrier.Lose, 2);
+                            stab = barrier.Stability;
+                            speed = barrier.Lose;
                         }
                         Spawn("ShockWaveEffect", coords);
                         _audioSystem.PlayPvs(comp.SuccesSound, uid);
