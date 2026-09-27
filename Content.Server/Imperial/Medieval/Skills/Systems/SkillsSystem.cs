@@ -87,18 +87,14 @@ public sealed partial class SkillsSystem : SharedSkillsSystem
             !protoJob.ApplySkills)
             return;
 
-        var sum = Points + 1;
-        foreach (var skill in args.Profile.Skills)
+        // Saved profiles can predate the point rebalance. Reset invalid profiles instead of banning their owners.
+        if (!TryValidateSkillLevels(_proto, args.Profile.Skills, out var levels))
         {
-            sum += GetPointsCost(skill.Value);
-        }
-        if (sum < 0)
-        {
-            _ban.CreateServerBan(args.Player.UserId, args.Player.Name, null, null, null, 0, Shared.Database.NoteSeverity.High, Loc.GetString("skills-autoban-points"));
-            return;
+            levels = GetDefaultSkillLevels(_proto);
+            _popup.PopupEntity(Loc.GetString("skills-profile-migrated"), args.Mob, args.Mob);
         }
 
-        ApplySkills(args.Mob, args.Profile.Skills, args.JobId);
+        ApplySkills(args.Mob, levels, args.JobId);
     }
 
     private void OnSetSkillLevel(SetSkillLevelMessage msg, EntitySessionEventArgs args)
