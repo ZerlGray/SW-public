@@ -99,6 +99,7 @@ public sealed class MedievalArmorRepairSystem : EntitySystem
         {
             BreakOnMove = true,
             AllowMovementAssistance = station == null,
+            DistanceThreshold = 2f,
             BreakOnDamage = true,
             NeedHand = true,
             BreakOnDropItem = true,
@@ -254,21 +255,9 @@ public sealed class MedievalArmorRepairSystem : EntitySystem
         MedievalRepairArmorComponent repairTool,
         float stationModifier)
     {
-        var intelligence = repairTool.BaselineIntelligence;
-        if (TryComp<SkillsComponent>(user, out var skills))
-        {
-            intelligence = skills.Levels.GetValueOrDefault(
-                SharedSkillsSystem.IntelligenceId,
-                repairTool.BaselineIntelligence);
-        }
-
-        var delay = repairTool.RepairTime;
-        if (intelligence > repairTool.BaselineIntelligence)
-            delay *= 1f - 0.05f * (intelligence - repairTool.BaselineIntelligence);
-        else if (intelligence < repairTool.BaselineIntelligence)
-            delay *= 1f + 0.15f * (repairTool.BaselineIntelligence - intelligence);
-
-        return Math.Max(repairTool.MinimumRepairDelay, delay * stationModifier);
+        var speed = new Content.Shared.Imperial.Medieval.Construction.GetConstructionSpeedModifiersEvent(1f);
+        RaiseLocalEvent(user, ref speed);
+        return Math.Max(repairTool.MinimumRepairDelay, repairTool.RepairTime * speed.Modifier * stationModifier);
     }
 
     private void PlayUseSound(Entity<MedievalRepairArmorComponent> repairTool, EntityUid target)

@@ -5,6 +5,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Shared.Imperial.Medieval.Magic.Mana;
 
 
+/// <summary>Raised after racial and profession mana modifiers have been applied.</summary>
+[ByRefEvent]
+public readonly record struct ManaInitializedEvent;
+
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class ManaComponent : Component
 {

@@ -5,15 +5,18 @@
   rsiPath: /Textures/Imperial/Medieval/Interface/Skills/intelligence.rsi
   icons:
     1: worst
-    5: bad
+    4: bad
     8: ok
-    15: good
+    12: good
+    16: good
     20: best
   modifiers:
-    PositiveConstructionSpeedModifier: -0.1
-    NegativeConstructionSpeedModifier: 0.1
-    PositiveHealingSpeedModifier: -0.07
-    NegativeHealingSpeedModifier: 0.14
-    PositiveManaModifier: 0.05
-    NegativeManaModifier: -0.09
+    WorkSpeedPerLevel: 0.03
+    HealingSpeedPerLevel: 0.03
+    MedicalPowerPerLevel: 0.015
+    ManaPerLevel: 0.04
+    ManaRegenPerLevel: 0.02
     LowStupidityChance: 0.2
+    SpellSurcharge: 100
+    MageEssence: 60
+    ArchmagicCost: 200

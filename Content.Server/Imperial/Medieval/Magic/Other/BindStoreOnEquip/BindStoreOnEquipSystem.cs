@@ -80,15 +80,24 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         EntityUid grimoireUid,
         EntityUid ownerUid,
         BindStoreOnEquipComponent? grimoire = null,
-        ImperialStoreComponent? store = null)
+        ImperialStoreComponent? store = null,
+        bool startingGrimoire = false)
     {
         if (!Resolve(grimoireUid, ref grimoire, ref store) ||
+            TerminatingOrDeleted(grimoireUid) || EntityManager.IsQueuedForDeletion(grimoireUid) ||
             grimoire.OwnerUid != null ||
-            HasComp<GrimoireOwnerComponent>(ownerUid) ||
             MetaData(grimoireUid).EntityPrototype?.ID is not { } prototype)
         {
             return false;
         }
+
+        var attempt = new GrimoireBindAttemptEvent(ownerUid, grimoireUid, startingGrimoire);
+        RaiseLocalEvent(ownerUid, attempt, broadcast: true);
+        if (attempt.Cancelled)
+            return false;
+
+        if (TryComp<GrimoireOwnerComponent>(ownerUid, out var existing))
+            return TryUpgradeGrimoire(ownerUid, existing, grimoireUid, prototype, grimoire, store);
 
         grimoire.OwnerUid = ownerUid;
 
@@ -97,6 +106,7 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         owner.GrimoirePrototype = prototype;
         SaveStoreState(owner, store);
         _storeSystem.BindMind(grimoireUid, ownerUid, store);
+        RaiseLocalEvent(ownerUid, new GrimoireBoundEvent(grimoireUid));
         return true;
     }
 
@@ -121,6 +131,7 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         owner.GrimoireUid = grimoireUid;
         RestoreStoreState(grimoireUid, owner, store);
         _storeSystem.BindMind(grimoireUid, ownerUid, store);
+        RaiseLocalEvent(ownerUid, new GrimoireBoundEvent(grimoireUid));
         return true;
     }
 
@@ -230,6 +241,7 @@ public sealed partial class BindStoreOnEquipSystem : EntitySystem
         store.Listings = CloneListings(owner.Listings);
         store.LastAvailableListings.Clear();
         store.BoughtEntities = new List<EntityUid>(owner.BoughtEntities);
+        _storeSystem.RebindPurchases(grimoireUid, store);
         store.BalanceSpent = new Dictionary<ProtoId<ImperialCurrencyPrototype>, FixedPoint2>(owner.BalanceSpent);
         store.RefundAllowed = owner.RefundAllowed;
         store.OwnerOnly = owner.OwnerOnly;
