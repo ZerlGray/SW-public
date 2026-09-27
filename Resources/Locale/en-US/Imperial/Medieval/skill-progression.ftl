@@ -1,12 +1,10 @@
 skills-require-strength-4 = Для двуручного хвата нужна сила 4.
 skills-require-intelligence-4 = Для применения медицинских предметов нужен интеллект 4.
 skills-dodged-hit = Вы уклонились от попадания!
-skills-steal-selected = Украсть: {$item}
-skills-craft-lockpick = Сделать одноразовую отмычку (1 шт.)
-skills-craft-stick = Вырезать палку (1 единица древесины)
+skills-theft-choose = Steal — choose an item
+skills-theft-empty = There are no suitable items to steal.
 skills-wooden-stick = деревянная палка
 skills-constitution-sick = Вам нехорошо. Стоит отдохнуть и привести себя в порядок.
-skills-detailed-examine = Подробный осмотр
 skills-examine-state = Состояние: {$state}
 skills-examine-damage = Получено урона: {$damage}
 skills-examine-threshold = Порог {$state}: {$threshold}; до него: {$remaining}

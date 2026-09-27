@@ -1,4 +1,5 @@
 using Content.Shared.ActionBlocker;
+using Content.Shared.Bed.Sleep;
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Imperial.Medieval.Grab;
@@ -12,6 +13,7 @@ using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Movement.Systems;
+using Content.Shared.Nutrition;
 using Content.Shared.Stunnable;
 using Content.Shared.StatusEffectNew;
 using Robust.Shared.Prototypes;
@@ -19,9 +21,6 @@ using Robust.Shared.Network;
 using Robust.Shared.Timing;
 
 namespace Content.Shared.Imperial.Medieval.Skills;
-
-[ByRefEvent]
-public record struct NeedsDecayEvent(float Multiplier = 1f);
 
 /// <summary>Keeps original control timers alive while endurance pays for their suppression.</summary>
 public sealed class SkillEnduranceSystem : EntitySystem
@@ -56,6 +55,7 @@ public sealed class SkillEnduranceSystem : EntitySystem
         SubscribeLocalEvent<SkillsComponent, KnockDownAttemptEvent>(OnKnockdown);
         SubscribeLocalEvent<SkillsComponent, BeingGrabbedAttemptEvent>(OnGrab);
         SubscribeLocalEvent<SkillsComponent, NeedsDecayEvent>(OnNeeds);
+        SubscribeLocalEvent<SkillsComponent, CanSleepInClothingEvent>(OnSleepPermission);
         SubscribeLocalEvent<SkillsComponent, CanSprintEvent>(OnSprint);
     }
 
@@ -64,6 +64,9 @@ public sealed class SkillEnduranceSystem : EntitySystem
         if (Legendary(uid))
             args.Multiplier *= Setting("NeedsMultiplier");
     }
+
+    private void OnSleepPermission(EntityUid uid, SkillsComponent skills, ref CanSleepInClothingEvent args) =>
+        args.Allowed |= SkillScaling.Level(skills, SharedSkillsSystem.EnduranceId) >= SkillScaling.Master;
 
     private void OnSprint(EntityUid uid, SkillsComponent skills, ref CanSprintEvent args)
     {

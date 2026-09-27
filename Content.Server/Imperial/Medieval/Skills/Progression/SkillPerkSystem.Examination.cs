@@ -3,6 +3,7 @@ using Content.Shared.Atmos.Components;
 using Content.Shared.Body.Components;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Components;
+using Content.Shared.Damage.Prototypes;
 using Content.Shared.Examine;
 using Content.Shared.Imperial.Medieval.ArmorIntegrity;
 using Content.Shared.Imperial.Medieval.Magic.Mana;
@@ -10,8 +11,6 @@ using Content.Shared.Imperial.Medieval.Skills;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Movement.Components;
 using Content.Shared.Stunnable;
-using Content.Shared.Verbs;
-using Robust.Shared.Utility;
 
 namespace Content.Server.Imperial.Medieval.Skills.Progression;
 
@@ -20,27 +19,19 @@ public sealed partial class SkillPerkSystem
     [Dependency] private readonly ExamineSystemShared _examine = default!;
 
     private void InitializeExamination() =>
-        SubscribeLocalEvent<MobStateComponent, GetVerbsEvent<ExamineVerb>>(OnExamineVerbs);
+        SubscribeLocalEvent<MobStateComponent, ExaminedEvent>(OnCharacterExamined);
 
     private bool CanInspect(EntityUid user, EntityUid target) =>
         HasLevel(user, SharedSkillsSystem.IntelligenceId, SkillScaling.Expert) && _examine.CanExamine(user, target)
         && (HasLevel(user, SharedSkillsSystem.IntelligenceId, SkillScaling.Master) || _examine.IsInDetailsRange(user, target));
 
-    private void OnExamineVerbs(EntityUid uid, MobStateComponent mob, GetVerbsEvent<ExamineVerb> args)
+    private void OnCharacterExamined(EntityUid uid, MobStateComponent mob, ExaminedEvent args)
     {
-        if (!CanInspect(args.User, uid))
+        if (!CanInspect(args.Examiner, uid))
             return;
-        args.Verbs.Add(new ExamineVerb
-        {
-            Text = Loc.GetString("skills-detailed-examine"),
-            Category = VerbCategory.Examine,
-            Act = () =>
-            {
-                if (!CanInspect(args.User, uid))
-                    return;
-                _examine.SendExamineTooltip(args.User, uid, FormattedMessage.FromUnformatted(DescribeCharacter(uid)), false, false);
-            }
-        });
+
+        // Extend the ordinary examine tooltip; no separate action or context-menu entry.
+        args.PushText(DescribeCharacter(uid), -1);
     }
 
     private string DescribeCharacter(EntityUid uid)
@@ -57,7 +48,7 @@ public sealed partial class SkillPerkSystem
             foreach (var (type, amount) in damage.Damage.DamageDict)
             {
                 if (amount > 0)
-                    text.AppendLine($"  {type}: {amount}");
+                    text.AppendLine($"  {_prototypes.Index<DamageTypePrototype>(type).LocalizedName}: {amount}");
             }
             if (TryComp<MobThresholdsComponent>(uid, out var thresholds))
             {
@@ -103,7 +94,7 @@ public sealed partial class SkillPerkSystem
             foreach (var (type, resistance) in armor.IsBroken ? armor.BrokenResistances : armor.UnbrokenResistances)
             {
                 if (resistance.Coefficient != 1f || resistance.FlatReduction != 0f)
-                    text.AppendLine($"  {type}: {MathF.Round((1f - resistance.Coefficient) * 100f)}%, -{resistance.FlatReduction:0.#}");
+                    text.AppendLine($"  {_prototypes.Index(type).LocalizedName}: {MathF.Round((1f - resistance.Coefficient) * 100f)}%, -{resistance.FlatReduction:0.#}");
             }
         }
         return text.ToString();

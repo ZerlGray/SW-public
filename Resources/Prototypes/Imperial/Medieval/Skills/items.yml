@@ -8,6 +8,10 @@
     consumable: true
     breakChance: 0.35
     hackTime: 3
+  - type: Construction
+    graph: MedievalImprovisedLockpick
+    node: lockpick
+    deconstructionTarget: null
 
 - type: entity
   parent: MaterialWoodPlank1
@@ -20,6 +24,10 @@
     count: 1
   - type: Item
     size: Small
+  - type: Construction
+    graph: MedievalSkillStick
+    node: stick
+    deconstructionTarget: null
 
 - type: stack
   id: SkillWoodenStick

@@ -1,4 +1,3 @@
-using Content.Shared.Imperial.Medieval.Skills;
 using Content.Shared.Alert;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Systems;

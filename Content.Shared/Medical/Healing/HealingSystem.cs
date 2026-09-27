@@ -198,10 +198,12 @@ public sealed class HealingSystem : EntitySystem
 
     private bool TryHeal(Entity<HealingComponent> healing, Entity<DamageableComponent?> target, EntityUid user)
     {
-        if (TryComp<SkillsComponent>(user, out var healerSkills)
-            && SkillScaling.Level(healerSkills, SharedSkillsSystem.IntelligenceId) < SkillScaling.Basic)
+        var attempt = new MedicalTreatmentAttemptEvent(healing, target);
+        RaiseLocalEvent(user, ref attempt);
+        if (attempt.Cancelled)
         {
-            _popupSystem.PopupClient(Loc.GetString("skills-require-intelligence-4"), user, user);
+            if (attempt.Reason is { } reason)
+                _popupSystem.PopupClient(Loc.GetString(reason), user, user);
             return false;
         }
         if (!Resolve(target, ref target.Comp, false))

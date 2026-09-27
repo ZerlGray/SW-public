@@ -1,7 +1,9 @@
 using System.Linq;
 using Content.Shared.Damage;
+using Content.Shared.Damage.Events;
 using Content.Shared.Imperial.Medieval.Grab;
 using Content.Shared.Inventory;
+using Content.Shared.Inventory.Events;
 using Content.Shared.Item;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Pulling.Events;
@@ -9,22 +11,12 @@ using Content.Shared.Tools.Components;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Melee.Components;
 using Content.Shared.Weapons.Ranged.Components;
+using Content.Shared.Wieldable;
 using Robust.Shared.Prototypes;
 using Robust.Shared.GameStates;
 using Robust.Shared.Timing;
 
 namespace Content.Shared.Imperial.Medieval.Skills;
-
-[ByRefEvent]
-public record struct GetWieldHandRequirementEvent(EntityUid Item, int Hands, bool SuppressDamageBonus = false);
-[ByRefEvent]
-public record struct AdditionalSlotFitEvent(EntityUid Item, SlotFlags Slot, bool Allowed = false);
-[ByRefEvent]
-public record struct ForceActionDelayEvent(float Seconds);
-[ByRefEvent]
-public record struct PhysicalStrikeEvent(EntityUid Target, EntityUid Weapon, DamageSpecifier Damage, bool Thrown = false, bool Empowered = false);
-[ByRefEvent]
-public readonly record struct PhysicalStrikeLandedEvent(EntityUid Target, bool Empowered);
 
 [RegisterComponent, NetworkedComponent]
 public sealed partial class SkillBeltBackpackComponent : Component;

@@ -1,6 +1,7 @@
 using Content.Shared.ActionBlocker;
 using Content.Shared.DoAfter;
 using Content.Shared.Imperial.Medieval.Medical;
+using Content.Shared.Medical.Healing;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Systems;
@@ -23,6 +24,7 @@ public sealed class SkillActionSystem : EntitySystem
     {
         SubscribeLocalEvent<SkillsComponent, BeforeDoAfterStartEvent>(OnDoAfter);
         SubscribeLocalEvent<SkillsComponent, CanActInCriticalEvent>(OnCriticalPermission);
+        SubscribeLocalEvent<SkillsComponent, MedicalTreatmentAttemptEvent>(OnMedicalTreatment);
         SubscribeLocalEvent<SkillsComponent, GetHealingSpeedModifiersEvent>(OnHealingSpeed);
         SubscribeLocalEvent<SkillsComponent, GetMedicalHealingMultiplierEvent>(OnHealingPower);
         SubscribeLocalEvent<SkillsComponent, RefreshMovementSpeedModifiersEvent>(OnMovement);
@@ -57,6 +59,14 @@ public sealed class SkillActionSystem : EntitySystem
             args.Args.DistanceThreshold ??= 2f;
         }
         args.Args.Delay /= CriticalSpeed(uid);
+    }
+
+    private void OnMedicalTreatment(EntityUid uid, SkillsComponent skills, ref MedicalTreatmentAttemptEvent args)
+    {
+        if (SkillScaling.Level(skills, SharedSkillsSystem.IntelligenceId) >= SkillScaling.Basic)
+            return;
+        args.Cancelled = true;
+        args.Reason = "skills-require-intelligence-4";
     }
 
     private void OnHealingSpeed(EntityUid uid, SkillsComponent skills, ref GetHealingSpeedModifiersEvent args) =>

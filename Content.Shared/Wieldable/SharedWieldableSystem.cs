@@ -1,4 +1,3 @@
-using Content.Shared.Imperial.Medieval.Skills;
 using System.Linq;
 using Content.Shared.Examine;
 using Content.Shared.Hands;

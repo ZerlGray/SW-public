@@ -1,4 +1,3 @@
-using Content.Shared.Imperial.Medieval.Skills;
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Alert;
 using Content.Shared.Damage;
